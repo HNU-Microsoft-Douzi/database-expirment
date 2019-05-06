@@ -34,7 +34,8 @@ public class client {
                 System.out.println();
 
                 br = new BufferedReader(new InputStreamReader(System.in));
-                String cmd = br.readLine();
+                // 去除字符串前后的空格
+                String cmd = br.readLine().trim();
 
                 DataOutputStream dos = new DataOutputStream(
                         new BufferedOutputStream(s.getOutputStream()));
@@ -152,7 +153,7 @@ public class client {
         } catch (IOException e1) {
             e1.printStackTrace();
         }
-
+        System.out.println();
     }
 
     /**
@@ -214,6 +215,7 @@ public class client {
                 e.printStackTrace();
             }
         }
+        System.out.println();
     }
 
     private void cd(String serverIp) {
@@ -227,17 +229,27 @@ public class client {
                     new BufferedOutputStream(s.getOutputStream()));
 
             dos.writeUTF(changedDir);
+
+            System.out.println("current dictionary:" + changedDir + "\n");
             dos.flush();
-            dos.close();
-            s.close();
-
         } catch (IOException e) {
-
+            e.printStackTrace();
+        } finally {
+            try {
+                if (dos != null) dos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                if (s != null) s.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void dir(String serverIp) {
-        System.out.println("以下是目录：");
+        System.out.println("folling is dictionary：");
         try {
             s = new Socket(serverIp, 8888);
             dis = new DataInputStream(new BufferedInputStream(s
@@ -251,28 +263,28 @@ public class client {
                 if (dis != null) {
                     data = dis.read(buf);
                     if (data == -1 || data == 0) {
-                        System.out.println("跳出");
+                        System.out.println("jumped out");
                         break;
                     }
                     String str = new String(buf);
                     System.out.println(str);
                 } else {
-                    System.out.println("跳出");
+                    System.out.println("jumped out");
                     break;
                 }
 
             }
 
         } catch (IOException e) {
-            System.out.println("错了");
+            e.printStackTrace();
         } finally {
             try {
-                dis.close();
+                if (dis != null) dis.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
             try {
-                s.close();
+                if (s != null) s.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

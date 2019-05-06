@@ -264,12 +264,10 @@ public class server {
             byte[] buf = direcFile.getBytes();
             dos.write(buf);
             dos.flush();
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             dos.close();
-
             if (s != null) s.close();
         }
     }
