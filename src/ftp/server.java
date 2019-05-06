@@ -1,3 +1,5 @@
+package ftp;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -98,7 +100,7 @@ public class server {
      * 客户端传过来要读取的文件路径，服务端将对应路径下的文件数据转成流通过TCP信道传输给客户端
      */
     private void get() {
-        System.out.println("client download file from server!");
+        System.out.println("ftp.client download file from ftp.server!");
 
         Socket s = null;
         try {
@@ -163,7 +165,7 @@ public class server {
      * 客户端向服务端上传文件
      */
     private void put() {
-        System.out.println("client uploading file to server!");
+        System.out.println("ftp.client uploading file to ftp.server!");
         DataOutputStream fileOut = null;
         try (Socket s = ss.accept()) {
             dis = new DataInputStream(new BufferedInputStream(s.getInputStream()));
@@ -217,14 +219,14 @@ public class server {
      * 查看服务端的文件目录
      */
     private void cd() {
-        System.out.println("view server dictionary:");
+        System.out.println("view ftp.server dictionary:");
         Socket s = null;
         try {
             s = ss.accept();
             dis = new DataInputStream(new BufferedInputStream(s
                     .getInputStream()));
             sharedFileDirectory = dis.readUTF();
-            System.out.println("client request dictionary is:" + sharedFileDirectory);
+            System.out.println("ftp.client request dictionary is:" + sharedFileDirectory);
             dir();
         } catch (IOException e) {
             e.printStackTrace();

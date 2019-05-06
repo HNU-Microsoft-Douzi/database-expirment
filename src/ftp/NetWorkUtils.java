@@ -1,4 +1,4 @@
-/**
+package ftp; /**
  * Copyright (C), 2015-2019, XXX有限公司
  * FileName: NetworkUtils
  * Author:   Administrator
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class NetWorkUtils {
 
-    private static final String TAG = "NetWorkUtils";
+    private static final String TAG = "ftp.NetWorkUtils";
 
     //匹配C类地址的IP
     public static final String regexCIp = "^192\\.168\\.(\\d{1}|[1-9]\\d|1\\d{2}|2[0-4]\\d|25\\d)\\.(\\d{1}|[1-9]\\d|1\\d{2}|2[0-4]\\d|25\\d)$";

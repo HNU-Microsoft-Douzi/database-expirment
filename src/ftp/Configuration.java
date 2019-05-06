@@ -1,6 +1,8 @@
+package ftp;
+
 /**
  * Copyright (C), 2015-2019, XXX有限公司
- * FileName: Configuration
+ * FileName: ftp.Configuration
  * Author:   Administrator
  * Date:     2019/5/6 0006 8:44
  * Description:
@@ -19,7 +21,7 @@ public class Configuration {
         return SERVER_SHARED_DIR;
     }
 
-    private static final String SERVER_RECEIVE_DIR = "src\\ftp_receive_dic";
+    private static final String SERVER_RECEIVE_DIR = "src\\ftp.ftp_receive_dic";
 
-    private static final String SERVER_SHARED_DIR = "src\\ftp_shared_dic";
+    private static final String SERVER_SHARED_DIR = "src\\ftp.ftp_shared_dic";
 }

@@ -1,3 +1,5 @@
+package ftp;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -26,7 +28,7 @@ public class client {
             while (flag) {
 
                 s = new Socket(serverIp, 8888);
-                System.out.println("client connected success");
+                System.out.println("ftp.client connected success");
                 System.out.println("please select which command you want to complete!");
                 String[] comStr = {"get", "put", "cd", "dir", "quit"};
                 for (String com : comStr) System.out.print(com + "  ");
@@ -102,7 +104,7 @@ public class client {
      * @param serverIp
      */
     private void get(String serverIp) {
-        System.out.println("please input file path from server:");
+        System.out.println("please input file path from ftp.server:");
         try {
             Socket s = new Socket(serverIp, 8888);
             br = new BufferedReader(new InputStreamReader(System.in));
@@ -119,7 +121,7 @@ public class client {
             int passedlen = 0;
 
             long len = 0;
-            String savePath = "src\\ftp_receive_dic";
+            String savePath = "src\\ftp.ftp_receive_dic";
             savePath = savePath + File.separator + dis.readUTF();
             DataOutputStream fileOut = new DataOutputStream(
                     new BufferedOutputStream(new FileOutputStream(savePath)));
@@ -162,7 +164,7 @@ public class client {
      * @param serverIp
      */
     private void put(String serverIp) {
-        System.out.println("please input file path from client to server:");
+        System.out.println("please input file path from ftp.client to ftp.server:");
         Socket s = null;
         try {
             s = new Socket(serverIp, 8888);
