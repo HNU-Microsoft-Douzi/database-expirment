@@ -14,15 +14,15 @@ package gbn;
 /**
  * 保证线程安全性
  */
-public class Model {
+class Model {
 
-    public volatile int time;
+    private volatile int time;
 
-    public  synchronized int getTime() {
+    synchronized int getTime() {
         return time;
     }
 
-    public synchronized void setTime(int time) {
+    synchronized void setTime(int time) {
         this.time = time;
     }
 }

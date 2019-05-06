@@ -21,14 +21,13 @@ import java.net.SocketException;
  * 服务器端
  */
 public class GBNServer {
-    private final int port = 80;
     private DatagramSocket datagramSocket;
     private DatagramPacket datagramPacket;
-    private int exceptedSeq = 1;
 
     public GBNServer() throws IOException {
 
         try {
+            int port = 80;
             datagramSocket = new DatagramSocket(port);
             while (true) {
                 byte[] receivedData = new byte[4096];
@@ -38,6 +37,7 @@ public class GBNServer {
                 String received = new String(receivedData, 0, receivedData.length);//offset是初始偏移量
                 System.out.println(received);
                 //收到了预期的数据
+                int exceptedSeq = 1;
                 if (Integer.parseInt(received.substring(received.indexOf("编号:") + 3).trim()) == exceptedSeq) {
                     //发送ack
                     sendAck(exceptedSeq);
@@ -58,12 +58,12 @@ public class GBNServer {
         }
     }
 
-    public static final void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         new GBNServer();
     }
 
     //向客户端发送ack
-    public void sendAck(int ack) throws IOException {
+    private void sendAck(int ack) throws IOException {
         String response = " ack:"+ack;
         byte[] responseData = response.getBytes();
         InetAddress responseAddress = datagramPacket.getAddress();
