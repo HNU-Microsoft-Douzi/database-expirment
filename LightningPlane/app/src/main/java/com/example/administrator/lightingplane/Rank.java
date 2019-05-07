@@ -34,7 +34,7 @@ public class Rank extends Activity {
 		getAllRank();//获取所有人的记录
 		rank();//对记录按从小到大的顺序排序
 
-		adapter = new SimpleAdapter(this, listRank, R.layout.ranklist, new String[]{"num","name","score"}, new int[]{R.id.txt_id,R.id.txt_name,R.id.txt_score});
+		adapter = new SimpleAdapter(this, listRank, R.layout.ranklist, new String[]{"enemyDestroyedNum","name","score"}, new int[]{R.id.txt_id,R.id.txt_name,R.id.txt_score});
 		Log.i("wy", "适配器初始化成功");
 		lvRank.setAdapter(adapter);
 		edtName = new EditText(this);
@@ -111,7 +111,7 @@ public class Rank extends Activity {
 			}
 		}
 		for(int i = 0; i < listRank.size(); i++){
-			listRank.get(i).put("num", (i+1)+"");//设定名次
+			listRank.get(i).put("enemyDestroyedNum", (i+1)+"");//设定名次
 		}
 	}
 

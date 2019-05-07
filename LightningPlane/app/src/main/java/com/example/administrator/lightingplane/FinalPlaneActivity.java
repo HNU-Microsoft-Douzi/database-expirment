@@ -27,6 +27,7 @@ public class FinalPlaneActivity extends Activity {
 	static MediaPlayer backMusic = null;
 	static MediaPlayer shotMusic = null;
 	static MediaPlayer bombMusic = null;
+	@SuppressLint("HandlerLeak")
 	Handler handler = new Handler(){
 		public void handleMessage(Message msg) {
 			// TODO Auto-generated method stub
@@ -38,7 +39,7 @@ public class FinalPlaneActivity extends Activity {
 
 					Intent intent = new Intent(FinalPlaneActivity.this,Rank.class);
 					intent.putExtra("score", FightingView.score);
-					FightingView.num = 0;
+					FightingView.enemyDestroyedNum = 0;
 					FightingView.score = 0;
 					FinalPlaneActivity.this.startActivityForResult(intent, 1);
 
@@ -62,7 +63,7 @@ public class FinalPlaneActivity extends Activity {
 		shotMusic = MediaPlayer.create(this, R.raw.bullet);
 		bombMusic = MediaPlayer.create(this, R.raw.bomb);
 		backMusic.setLooping(true);
-		SharedPreferences share = getSharedPreferences("test", Context.MODE_WORLD_READABLE+Context.MODE_WORLD_WRITEABLE);
+		SharedPreferences share = getSharedPreferences("test", Context.MODE_PRIVATE+Context.MODE_PRIVATE);
 		backMusicFlag = share.getBoolean("backMusicFlag", true);
 		soundFlag = share.getBoolean("soundFlag", true);
 
@@ -104,7 +105,7 @@ public class FinalPlaneActivity extends Activity {
 		super.onStop();
 		Log.i("wy", "战斗停止");
 		FightingView.flag = false;//线程终止
-		FightingView.num = 0;
+		FightingView.enemyDestroyedNum = 0;
 		FightingView.round = 1;
 		FightingView.score = 0;
 		backMusic.stop();

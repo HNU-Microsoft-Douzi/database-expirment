@@ -40,22 +40,24 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 	Thread thread;
 
 	public static Plane plane = null;	//主角飞机对象
-	int enemyCount = 20;//敌机个数
-	List<Plane> enemys = new ArrayList<Plane>();//敌机组
+
+	int enemyCount = 10; // 敌机个数
+
+	List<Plane> enemys = new ArrayList<>(); // 敌机组
 	Boss boss;
-	Award award;//奖励
+	Award award; // 奖励
 
 	Context context;
-	//触屏后飞机将要移动到的位置的X、Y坐标
+	// 触屏后飞机将要移动到的位置的X、Y坐标
 	int moveToX = 0;
 	int moveToY = 0;
 
-	int enemyFlag = 0;//敌机重置标志位
-	int enemyInterval = 20;//敌机出现时间间隔
+	int enemyFlag = 0; // 敌机重置标志位
+	int enemyInterval = 20; // 敌机出现时间间隔
 	boolean bombFlag = false;
 
 	public static int score = 0;//总分
-	public static int num;//消灭敌机的数量
+	public static int enemyDestroyedNum; // 消灭敌机的数量
 	public int round = 1;//关卡
 
 	Random random = new Random();
@@ -146,10 +148,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 	 */
 	private void getBackGround(Context context){
 		backGround[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.background2);
-		backGround[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.background3);
+		backGround[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.background2);
 		backGround[0] = Bitmap.createScaledBitmap(backGround[0], screenWidth, screenHeight, false);
 		backGround[1] = Bitmap.createScaledBitmap(backGround[1], screenWidth, screenHeight, false);
 	}
+
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
@@ -171,11 +174,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		drawBackGround(canvas);
 
 		//打满十个小敌机，会出现boss
-		if(num == bossFlag){
+		if(enemyDestroyedNum == bossFlag){
 			boss.reset();//boss重置
 			boss.state = 2;//刚重置时boss不显示
 
-
+            // round代表不同的管卡，这里指的是不同管卡的boss的设定
 			switch(round){
 				case 1:
 					boss.moveStyle = 1;
@@ -244,14 +247,14 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 			}
 
 			boss.maxHealth = boss.health;
-		}else if(num > bossFlag){
+		}else if(enemyDestroyedNum > bossFlag){
 			boss.state = 1;
 			if(boss.state == 1)
 				boss.move(canvas, paint, moveToX, moveToY);//画boss，boss死亡时会将消灭敌机输重新置0
 			if(boss.health <= 0){
 				round++;
 				bossFlag+=20;
-				num = 0;
+				enemyDestroyedNum = 0;
 				boss.state = 2;
 			}
 		}

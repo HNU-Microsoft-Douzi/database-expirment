@@ -106,9 +106,9 @@ public class Bullet {
 					}
 
 					if(belongTo){
-						FightingView.num++;
+						FightingView.enemyDestroyedNum++;
 						FightingView.score+=10;
-						Log.i("wy", "命中敌机!敌机血量:"+enemy.health+",消灭敌机输:"+FightingView.num);
+						Log.i("wy", "命中敌机!敌机血量:"+enemy.health+",消灭敌机输:"+FightingView.enemyDestroyedNum);
 					}else{
 						Log.i("wy", "被命中!血量:"+enemy.health);
 					}

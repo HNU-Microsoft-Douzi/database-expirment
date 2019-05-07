@@ -20,7 +20,7 @@ public class SettingActivity extends Activity {
 		setContentView(R.layout.set);
 		cbBackMusic = (CheckBox) findViewById(R.id.cb_back);
 		cbSound = (CheckBox) findViewById(R.id.cb_Sound);
-		SharedPreferences share = getSharedPreferences("test", Context.MODE_WORLD_READABLE+Context.MODE_WORLD_WRITEABLE);
+		SharedPreferences share = getSharedPreferences("test", Context.MODE_PRIVATE+Context.MODE_PRIVATE);
 		editor = share.edit();
 
 		FinalPlaneActivity.backMusicFlag = share.getBoolean("backMusicFlag", true);
