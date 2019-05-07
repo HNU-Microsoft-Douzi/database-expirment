@@ -21,19 +21,19 @@ public class SettingActivity extends Activity {
 		cbBackMusic = (CheckBox) findViewById(R.id.cb_back);
 		cbSound = (CheckBox) findViewById(R.id.cb_Sound);
 		SharedPreferences share = getSharedPreferences("test", Context.MODE_WORLD_READABLE+Context.MODE_WORLD_WRITEABLE);
-        editor = share.edit();
-        
-        FinalPlaneActivity.backMusicFlag = share.getBoolean("backMusicFlag", true);
-        FinalPlaneActivity.soundFlag = share.getBoolean("soundFlag", true);
-        if(FinalPlaneActivity.backMusicFlag){
-        	cbBackMusic.setChecked(true);
-        }
-        if(FinalPlaneActivity.soundFlag){
-        	cbSound.setChecked(true);
-        }
-        
-        cbBackMusic.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+		editor = share.edit();
+
+		FinalPlaneActivity.backMusicFlag = share.getBoolean("backMusicFlag", true);
+		FinalPlaneActivity.soundFlag = share.getBoolean("soundFlag", true);
+		if(FinalPlaneActivity.backMusicFlag){
+			cbBackMusic.setChecked(true);
+		}
+		if(FinalPlaneActivity.soundFlag){
+			cbSound.setChecked(true);
+		}
+
+		cbBackMusic.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				// TODO Auto-generated method stub
@@ -41,9 +41,9 @@ public class SettingActivity extends Activity {
 				editor.commit();
 			}
 		});
-        
-        cbSound.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-			
+
+		cbSound.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				// TODO Auto-generated method stub

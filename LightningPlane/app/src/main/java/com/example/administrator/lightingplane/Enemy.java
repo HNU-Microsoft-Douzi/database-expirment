@@ -12,7 +12,7 @@ public class Enemy extends Plane {
 	int moveStyle;
 	int STEPY = 10;
 	public Enemy(Context context, int screenWidth, int screenHeight,
-			Bitmap[] planePics) {
+				 Bitmap[] planePics) {
 		super(context, screenWidth, screenHeight, planePics);
 		// TODO Auto-generated constructor stub
 		shotStyle = 1;
@@ -21,7 +21,7 @@ public class Enemy extends Plane {
 		state = 2;
 		STEP = -5;
 		shotInterval = 20;
-		//�ı��ӵ�������
+		//改变子弹的属性
 		for(Bullet bullet:bullets){
 			bullet.bulletPic = BitmapFactory.decodeResource(context.getResources(),R.drawable.enzd1);
 			bullet.belongTo = false;
@@ -43,11 +43,11 @@ public class Enemy extends Plane {
 			}
 		}
 	}
-	
+
 	@Override
 	public void move(Canvas canvas, Paint paint, int moveToX, int moveToY) {
 		// TODO Auto-generated method stub
-		impact();//��ײ���
+		impact();//碰撞检测
 		if(health <= 0){
 			if(!animation.isEnd)
 				animation.start(canvas, paint, nowX, nowY);
@@ -58,18 +58,18 @@ public class Enemy extends Plane {
 			}
 		}else{
 			switch(moveStyle){
-			case 0://ֱ�ߴ���������
-				nowY -= STEP;
-				break;
-			case 1://����������
-				if(nowX <= 0 || nowX >= screenWidth - width){
-					STEPY = -STEPY;
-				}
-				nowY -= STEP;
-				nowX += STEPY;
-				break;
-//			case 2://��ɱʽս��
-//				
+				case 0://直线从上往下走
+					nowY -= STEP;
+					break;
+				case 1://左右游走型
+					if(nowX <= 0 || nowX >= screenWidth - width){
+						STEPY = -STEPY;
+					}
+					nowY -= STEP;
+					nowX += STEPY;
+					break;
+//			case 2://自杀式战机
+//
 //					if(Math.abs(moveToX-nowX)<STEP){
 //						nowX = moveToX;
 //					}
@@ -79,7 +79,7 @@ public class Enemy extends Plane {
 //					else if(moveToX < nowX && moveToX < screenWidth && moveToX > 0){
 //						nowX -= STEP;
 //					}
-//					
+//
 //					if(Math.abs(moveToY-nowY)<STEP){
 //						nowY = moveToY;
 //					}
@@ -91,20 +91,20 @@ public class Enemy extends Plane {
 			}
 
 			canvas.drawBitmap(planePics[0], nowX, nowY, paint);
-			}
-			
-		
-		
-		//�л�����
+		}
+
+
+
+		//敌机出屏
 		if(nowX < -width/2 || nowX > screenWidth || nowY > screenHeight){
 			state = 2;
 		}
-		//�ӵ��ƶ�
+		//子弹移动
 		bulletsMove(canvas,paint);
 	}
-	
+
 	/* (non-Javadoc)
-	 * ���õл�
+	 * 重置敌机
 	 * @see cn.com.wygame.Plane#reset()
 	 */
 	@Override

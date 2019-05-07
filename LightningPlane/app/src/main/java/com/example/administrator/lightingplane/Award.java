@@ -8,6 +8,9 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
+/**
+ * 奖励对象
+ */
 public class Award{
 	Context context;
 	int nowX;
@@ -17,11 +20,11 @@ public class Award{
 	int width;
 	int height;
 	Bitmap[] awardPics = new Bitmap[5];
-	int style;//����������
+	int style;//奖励的类型
 	int STEPX = 5;
 	int STEPY = -5;
 	boolean state = false;
-	
+
 	public Award(Context context, int screenWidth, int screenHeight){
 		this.context = context;
 		this.screenWidth = screenWidth;
@@ -34,11 +37,11 @@ public class Award{
 		width = awardPics[0].getWidth();
 		height = awardPics[1].getHeight();
 	}
-	
+
 	public void move(Canvas canvas, Paint paint){
-		impact();//��ײ���
+		impact();//碰撞检测
 		if(state){
-			//�ƶ�
+			//移动
 			if(nowX <= 0 || nowX >= screenWidth - width){
 				STEPX = -STEPX;
 			}
@@ -46,55 +49,55 @@ public class Award{
 			nowX += STEPX;
 			canvas.drawBitmap(awardPics[style], nowX, nowY, paint);
 		}else{
-			//����
+			//重置
 			reset();
 		}
-		
+
 		if(nowY > screenHeight){
 			state = false;
 		}
 	}
-	
+
 	public void impact(){
-		if(state && Fighting.plane.state == 1){
-			if((nowX > Fighting.plane.nowX && nowX < (Fighting.plane.nowX + Fighting.plane.width) && nowY > Fighting.plane.nowY && nowY < (Fighting.plane.nowY + Fighting.plane.height))
-					|| ((nowX + width) > Fighting.plane.nowX && (nowX + width) < (Fighting.plane.nowX + Fighting.plane.width) && nowY > Fighting.plane.nowY && nowY < (Fighting.plane.nowY + Fighting.plane.height))
-					|| (nowX > Fighting.plane.nowX && nowX < (Fighting.plane.nowX + Fighting.plane.width) && (nowY + height) > Fighting.plane.nowY && (nowY + height) < (Fighting.plane.nowY + Fighting.plane.height))
-					|| ((nowX+width) > Fighting.plane.nowX && (nowX+width) < (Fighting.plane.nowX + Fighting.plane.width) && (nowY + height) > Fighting.plane.nowY && (nowY + height) < (Fighting.plane.nowY + Fighting.plane.height))){
+		if(state && FightingView.plane.state == 1){
+			if((nowX > FightingView.plane.nowX && nowX < (FightingView.plane.nowX + FightingView.plane.width) && nowY > FightingView.plane.nowY && nowY < (FightingView.plane.nowY + FightingView.plane.height))
+					|| ((nowX + width) > FightingView.plane.nowX && (nowX + width) < (FightingView.plane.nowX + FightingView.plane.width) && nowY > FightingView.plane.nowY && nowY < (FightingView.plane.nowY + FightingView.plane.height))
+					|| (nowX > FightingView.plane.nowX && nowX < (FightingView.plane.nowX + FightingView.plane.width) && (nowY + height) > FightingView.plane.nowY && (nowY + height) < (FightingView.plane.nowY + FightingView.plane.height))
+					|| ((nowX+width) > FightingView.plane.nowX && (nowX+width) < (FightingView.plane.nowX + FightingView.plane.width) && (nowY + height) > FightingView.plane.nowY && (nowY + height) < (FightingView.plane.nowY + FightingView.plane.height))){
 				state = false;
 				switch(style){
-				case 0:
-					if(Fighting.plane.bomb < 5)
-						Fighting.plane.bomb++;
-					break;
-				case 1:
-					if(Fighting.plane.health<100){
-						Fighting.plane.health += 10;
-					}
-					break;
-				case 2:
-					if(Fighting.plane.lives < 5){
-						Fighting.plane.lives++;
-					}
-					break;
-				case 3:
-					if(Fighting.plane.bullets.get(0).damage < 50){
-						for(Bullet bullet:Fighting.plane.bullets){
-							bullet.damage += 10;
+					case 0:
+						if(FightingView.plane.bomb < 5)
+							FightingView.plane.bomb++;
+						break;
+					case 1:
+						if(FightingView.plane.health<100){
+							FightingView.plane.health += 10;
 						}
-					}
-					if(Fighting.plane.shotStyle < 5)
-						Fighting.plane.shotStyle ++;
-					break;
-				case 4:
-					if(Fighting.plane.STEP < 30){
-						Fighting.plane.STEP += 5;
-					}
+						break;
+					case 2:
+						if(FightingView.plane.lives < 5){
+							FightingView.plane.lives++;
+						}
+						break;
+					case 3:
+						if(FightingView.plane.bullets.get(0).damage < 50){
+							for(Bullet bullet:FightingView.plane.bullets){
+								bullet.damage += 10;
+							}
+						}
+						if(FightingView.plane.shotStyle < 5)
+							FightingView.plane.shotStyle ++;
+						break;
+					case 4:
+						if(FightingView.plane.STEP < 30){
+							FightingView.plane.STEP += 5;
+						}
 				}
 			}
 		}
 	}
-	
+
 	public void reset(){
 		Random random = new Random();
 		nowX = Math.abs(random.nextInt()%(screenWidth-width/2) + 1);

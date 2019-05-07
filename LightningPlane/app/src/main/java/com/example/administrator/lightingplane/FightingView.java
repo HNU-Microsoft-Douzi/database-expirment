@@ -14,76 +14,79 @@ import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
-public class Fighting extends SurfaceView implements Callback, Runnable {
-	//��Ļ�Ŀ�
+/**
+ * 战斗View,是整个战斗界面的呈现View
+ */
+public class FightingView extends SurfaceView implements Callback, Runnable {
+	//屏幕的宽
 	private int screenWidth;
-	//��Ļ�ĸ�
+	//屏幕的高
 	private int screenHeight;
-	//����
+	//画布
 	Canvas canvas = null;
-	//����
+	//画笔
 	Paint paint = null;
 	SurfaceHolder holder = null;
-	//����ͼƬ
+	//背景图片
 	Bitmap backGround[] = new Bitmap[2];
-	//��ǰ����ͼƬ1�ĸ߶�
+	//当前背景图片1的高度
 	int bg1 = 0;
-	//��ǰ����ͼƬ2�ĸ߶�
+	//当前背景图片2的高度
 	int bg2 = 0;
-	//�߳����б�־λ
+	//线程运行标志位
 	public static boolean flag = false;
-	//��ͣ��־λ
+	//暂停标志位
 	public static boolean pause = false;
 	Thread thread;
 
-	public static Plane plane = null;	//���Ƿɻ�����
-	int enemyCount = 20;//�л�����
-	List<Plane> enemys = new ArrayList<Plane>();//�л���
+	public static Plane plane = null;	//主角飞机对象
+	int enemyCount = 20;//敌机个数
+	List<Plane> enemys = new ArrayList<Plane>();//敌机组
 	Boss boss;
-	Award award;//����
-		
+	Award award;//奖励
+
 	Context context;
-	//������ɻ���Ҫ�ƶ�����λ�õ�X��Y����
+	//触屏后飞机将要移动到的位置的X、Y坐标
 	int moveToX = 0;
 	int moveToY = 0;
-	
-	int enemyFlag = 0;//�л����ñ�־λ
-	int enemyInterval = 20;//�л�����ʱ����
+
+	int enemyFlag = 0;//敌机重置标志位
+	int enemyInterval = 20;//敌机出现时间间隔
 	boolean bombFlag = false;
-	
-	public static int score = 0;//�ܷ�
-	public static int num;//����л�������
-	public int round = 1;//�ؿ�
-	
+
+	public static int score = 0;//总分
+	public static int num;//消灭敌机的数量
+	public int round = 1;//关卡
+
 	Random random = new Random();
-	public int bossFlag = 20;//����bossFlag���л���boss�Ż����
-	
+	public int bossFlag = 20;//消灭bossFlag个敌机后boss才会出现
+
 	Bitmap pauseIcon = null;
 	Bitmap playIcon = null;
-	
-	
-	Fighting(Context context,int screenWidth, int screenHeight) {
+
+
+	FightingView(Context context,int screenWidth, int screenHeight) {
 		super(context);
 		this.context = context;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		holder = getHolder();
 		paint = new Paint();
-		//���ñ���ͼƬ�Ե�λ��
+		//设置背景图片以的位置
 		bg1 = 0;
-		//���ñ���ͼƬ2��λ��
+		//设置背景图片2的位置
 		bg2 = -screenHeight;
 		holder.addCallback(this);
-		//��ʼ��ս������
+		//初始化战斗界面
 		init();
-		//��ȡ����
+		//获取焦点
 		setFocusable(true);
 	}
 
-	
+
 	private void init(){
 		getBackGround(context);
-		//��ʼ���ɻ�ͼƬ
+		//初始化飞机图片
 		Bitmap[] temp = new Bitmap[3];
 		temp[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my);
 		temp[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_l);
@@ -91,15 +94,15 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 		temp[0] = Bitmap.createScaledBitmap(temp[0], temp[0].getWidth()/2, temp[0].getHeight()/2, true);
 		temp[1] = Bitmap.createScaledBitmap(temp[1], temp[1].getWidth()/2, temp[1].getHeight()/2, true);
 		temp[2] = Bitmap.createScaledBitmap(temp[2], temp[2].getWidth()/2, temp[2].getHeight()/2, true);
-		
-		//��ʼ��boss
+
+		//初始化boss
 		Bitmap[] temp1 = new Bitmap[3];
 		temp1[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
 		temp1[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
 		temp1[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3_t);
 		boss = new Boss(context, screenWidth, screenHeight, temp1);
-		
-		//��ʼ���л�
+
+		//初始化敌机
 		Bitmap[] temp2 = new Bitmap[3];
 		temp2[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy13);
 		temp2[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy13_t);
@@ -109,13 +112,13 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 			enemy.moveStyle = 1;
 			enemys.add(enemy);
 		}
-		
-		//��ʼ���ɻ�
+
+		//初始化飞机
 		plane = new Plane(context, screenWidth, screenHeight, temp);
 		plane.enemys = enemys;
 		plane.boss = boss;
-		plane.setTarget();//���ɻ�����Ŀ��
-		plane.shotInterval = 3;//���÷ɻ�����ٶ�
+		plane.setTarget();//给飞机设置目标
+		plane.shotInterval = 3;//设置飞机射击速度
 		for(Plane enemy:enemys){
 			enemy.enemys.add(plane);
 			enemy.setTarget();
@@ -126,20 +129,20 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 		boss.moveStyle = 1;
 		award = new Award(context, screenWidth, screenHeight);
 		award.state = true;
-		
+
 		if(FinalPlaneActivity.backMusicFlag){
 			FinalPlaneActivity.backMusic.start();
 		}
-		
+
 		pauseIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.pause);
 		pauseIcon = Bitmap.createScaledBitmap(pauseIcon, 30, 30, false);
 		playIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.play);
 		playIcon = Bitmap.createScaledBitmap(playIcon, 30, 30, false);
 	}
-	
+
 	/**
-	 * ��ȡ����ͼƬ
-	 * @param context ��ǰ������
+	 * 获取背景图片
+	 * @param context 当前上下文
 	 */
 	private void getBackGround(Context context){
 		backGround[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.background2);
@@ -162,89 +165,89 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 			}
 		}
 	}
-	
+
 	private void draw(){
 		canvas = holder.lockCanvas();
 		drawBackGround(canvas);
-		
-		//����ʮ��С�л��������boss
+
+		//打满十个小敌机，会出现boss
 		if(num == bossFlag){
-				boss.reset();//boss����
-				boss.state = 2;//������ʱboss����ʾ
-			
-			
+			boss.reset();//boss重置
+			boss.state = 2;//刚重置时boss不显示
+
+
 			switch(round){
-			case 1:
-				boss.moveStyle = 1;
-				boss.shotStyle = 2;
-				boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
-				boss.width = boss.planePics[0].getWidth();
-				boss.height = boss.planePics[0].getHeight();
-				boss.moveStyle = 0;//����ˮƽ�ƶ�
-				boss.shotStyle = 1;//����һö�ӵ�
-				boss.health = 1000;
-				break;
-			case 2:
-				boss.moveStyle = 1;
-				boss.shotStyle = 2;
-				boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
-				boss.width = boss.planePics[0].getWidth();
-				boss.height = boss.planePics[0].getHeight();
-				//�ı�л��ķ���ģʽ
-				for(Plane enemy:enemys){
-					int enemyMoveStyle = Math.abs(random.nextInt()%2);
-					enemy.moveStyle = enemyMoveStyle;
-					enemy.health = 20;
-				}
-				boss.health = 3000;
-				break;
-			case 3:
-				boss.moveStyle = 1;
-				boss.shotStyle = 3;
-				boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3_t);
-				boss.width = boss.planePics[0].getWidth();
-				boss.height = boss.planePics[0].getHeight();
-				//�ı�л��ķ���ģʽ
-				for(Plane enemy:enemys){
-					enemy.shotStyle = 1;
-					enemy.health = 30;
-				}
-				boss.health = 6000;
-				break;
-			case 4:
-				boss.moveStyle = 1;
-				boss.shotStyle = 4;
-				boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss4);
-				boss.width = boss.planePics[0].getWidth();
-				boss.health = boss.planePics[0].getHeight();
-				//�ı�л��ķ���ģʽ
-				for(Plane enemy:enemys){
-					enemy.shotStyle = 1;
-					enemy.health = 40;
-				}
-				boss.health = 10000;
-				break;
-			case 5:
-				boss.moveStyle = 1;
-				boss.shotStyle = 5;
-				boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss5);
-				boss.width = boss.planePics[0].getWidth();
-				boss.height = boss.planePics[0].getHeight();
-				//�ı�л��ķ���ģʽ
-				for(Plane enemy:enemys){
-					enemy.shotStyle = 1;
-					enemy.health = 50;
-				}
-				boss.health = 15000;
-				break;
-			default :round ++;
+				case 1:
+					boss.moveStyle = 1;
+					boss.shotStyle = 2;
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
+					boss.width = boss.planePics[0].getWidth();
+					boss.height = boss.planePics[0].getHeight();
+					boss.moveStyle = 0;//左右水平移动
+					boss.shotStyle = 1;//发射一枚子弹
+					boss.health = 1000;
+					break;
+				case 2:
+					boss.moveStyle = 1;
+					boss.shotStyle = 2;
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
+					boss.width = boss.planePics[0].getWidth();
+					boss.height = boss.planePics[0].getHeight();
+					//改变敌机的发射模式
+					for(Plane enemy:enemys){
+						int enemyMoveStyle = Math.abs(random.nextInt()%2);
+						enemy.moveStyle = enemyMoveStyle;
+						enemy.health = 20;
+					}
+					boss.health = 3000;
+					break;
+				case 3:
+					boss.moveStyle = 1;
+					boss.shotStyle = 3;
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3_t);
+					boss.width = boss.planePics[0].getWidth();
+					boss.height = boss.planePics[0].getHeight();
+					//改变敌机的发射模式
+					for(Plane enemy:enemys){
+						enemy.shotStyle = 1;
+						enemy.health = 30;
+					}
+					boss.health = 6000;
+					break;
+				case 4:
+					boss.moveStyle = 1;
+					boss.shotStyle = 4;
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss4);
+					boss.width = boss.planePics[0].getWidth();
+					boss.health = boss.planePics[0].getHeight();
+					//改变敌机的发射模式
+					for(Plane enemy:enemys){
+						enemy.shotStyle = 1;
+						enemy.health = 40;
+					}
+					boss.health = 10000;
+					break;
+				case 5:
+					boss.moveStyle = 1;
+					boss.shotStyle = 5;
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss5);
+					boss.width = boss.planePics[0].getWidth();
+					boss.height = boss.planePics[0].getHeight();
+					//改变敌机的发射模式
+					for(Plane enemy:enemys){
+						enemy.shotStyle = 1;
+						enemy.health = 50;
+					}
+					boss.health = 15000;
+					break;
+				default :round ++;
 			}
 
 			boss.maxHealth = boss.health;
 		}else if(num > bossFlag){
 			boss.state = 1;
 			if(boss.state == 1)
-				boss.move(canvas, paint, moveToX, moveToY);//��boss��boss����ʱ�Ὣ����л���������0
+				boss.move(canvas, paint, moveToX, moveToY);//画boss，boss死亡时会将消灭敌机输重新置0
 			if(boss.health <= 0){
 				round++;
 				bossFlag+=20;
@@ -252,8 +255,8 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 				boss.state = 2;
 			}
 		}
-		
-		//ս�������󣬳�ʼ������λ��,���ел���ը,�ӵ���ʧ
+
+		//战机死亡后，初始化出现位置,所有敌机爆炸,子弹消失
 		if(plane.health <= 0){
 			moveToX = screenWidth/2;
 			moveToY = screenHeight * 2 / 3;
@@ -269,19 +272,19 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 				}
 			}
 		}
-		
-		drawEnemy(canvas);//���л�
-		plane.move(canvas, paint, moveToX - plane.width/2, moveToY - plane.height/2);//��ս��
+
+		drawEnemy(canvas);//画敌机
+		plane.move(canvas, paint, moveToX - plane.width/2, moveToY - plane.height/2);//画战机
 		award.move(canvas, paint);
-		canvas.drawText("����:"+score, 10, 20, paint);
-		canvas.drawText("�ؿ�"+round, screenWidth - 80, 20, paint);
+		canvas.drawText("分数:"+score, 10, 20, paint);
+		canvas.drawText("关卡"+round, screenWidth - 80, 20, paint);
 		if(pause){
 			canvas.drawBitmap(playIcon, screenWidth - 30, 0, paint);
 		}
 		else{
 			canvas.drawBitmap(pauseIcon, screenWidth - 30, 0, paint);
 		}
-		//ը��
+		//炸弹
 		if(bombFlag){
 			for(Plane enemy:enemys){
 				if(enemy.state == 1 && enemy.height >= 0){
@@ -299,15 +302,15 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 		}
 		holder.unlockCanvasAndPost(canvas);
 	}
-	
-	
+
+
 	private void drawEnemy(Canvas canvas){
 		if(canvas != null){
 			for(Plane enemy:enemys){
 				if(enemy.state == 1)
 					enemy.move(canvas, paint, moveToX, moveToY);
 			}
-			
+
 			if(enemyFlag == 0){
 				for(Plane enemy:enemys){
 					if(enemy.state == 2){
@@ -322,11 +325,11 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 				enemyFlag = 0;
 			}
 		}
-		
+
 	}
 	/**
-	 * ���±���
-	 * @param canvas ����
+	 * 更新背景
+	 * @param canvas 画布
 	 */
 	private void drawBackGround(Canvas canvas){
 		if(canvas != null){
@@ -339,15 +342,15 @@ public class Fighting extends SurfaceView implements Callback, Runnable {
 			bg1+=2;
 			bg2+=2;
 		}
-		
+
 	}
-	
-	
-	
+
+
+
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub
-				
+
 		if(event.getAction() == MotionEvent.ACTION_DOWN){
 			if(event.getX() > 0 && event.getX() < 30 && event.getY() > screenHeight - 10 && event.getY() < screenHeight && plane.bomb > 0){
 				bombFlag = true;

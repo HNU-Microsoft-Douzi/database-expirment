@@ -11,25 +11,25 @@ import android.util.Log;
  * 子弹实体类
  */
 public class Bullet {
-	public int damage; // 子弹能造成的伤害
-	public int style; // 子弹种类
-	
-	public int nowX; // 子弹的当前位置
+	public int damage;//子弹的威力
+	public int style;//子弹的运动方式
+
+	public int nowX;//子弹当前的位置
 	public int nowY;
-	
-	public Bitmap bulletPic; // 子弹图片
-	
-	public int width; // 子弹宽度
-	public int height; // 子弹高度
-	public int step; // 每次移动的像素个数
-	public int state;//�ӵ���״̬,0��������ը״̬��1������״̬��2���ɱ�����״̬
-	
+
+	public Bitmap bulletPic;//子弹的样子
+
+	public int width;//子弹的宽
+	public int height;//子弹的高
+	public int step;//子弹的速度
+	public int state;//子弹的状态,0：死亡爆炸状态，1：生存状态，2：可被重置状态
+
 	public Animation animation;
 	List<Plane> enemys;
 	Boss boss;
-	
-	public boolean 	belongTo = true;//��ǰ�ӵ�����˭��trueʱ�������Ƿɻ���false���ڵл�
-	
+
+	public boolean 	belongTo = true;//当前子弹属于谁，true时属于主角飞机，false属于敌机
+
 	public Bullet(Bitmap bulletPic, List<Bitmap> destroyPics){
 		this.bulletPic = bulletPic;
 		animation = new Animation(destroyPics);
@@ -40,18 +40,18 @@ public class Bullet {
 		width = bulletPic.getWidth();
 		height = bulletPic.getHeight();
 	}
-	
+
 	/**
-	 * �ƶ��ӵ�,�ӵ�״̬Ϊ0ʱ��ը��1ʱ�ƶ�
-	 * @param canvas ����
-	 * @param paint ����
-	 * @param screenWidth ��Ļ�Ŀ�
-	 * @param screenHeight ��Ļ�ĸ�
+	 * 移动子弹,子弹状态为0时爆炸，1时移动
+	 * @param canvas 画布
+	 * @param paint 画笔
+	 * @param screenWidth 屏幕的宽
+	 * @param screenHeight 屏幕的高
 	 */
 	public void move(Canvas canvas, Paint paint, int screenWidth, int screenHeight){
-		impact();//��ײ���
-		
-		//�ƶ��ӵ���״̬Ϊ0ʱ��ը��Ϊ1ʱ�ƶ�
+		impact();//碰撞检测
+
+		//移动子弹，状态为0时爆炸，为1时移动
 		if(state == 0){
 			if(animation.num < animation.list.size())
 				animation.start(canvas, paint, nowX, nowY);
@@ -61,38 +61,38 @@ public class Bullet {
 			}
 		}else if(state == 1){
 			switch(style){
-			case 1://ֱ�������ƶ�
-				nowY -= step;
-				break;
-			case 2://б�������ƶ�
-				nowY -= step;
-				nowX -= step/3;
-				break;
-			case 3://б�������ƶ�
-				nowY -= step;
-				nowX += step/3;
-				break;
-			case 4:
-				nowY -= step;
-				nowX += step/2;
-				break;
-			case 5:
-				nowY -= step;
-				nowX -=step/2;
-				break;
+				case 1://直线向上移动
+					nowY -= step;
+					break;
+				case 2://斜向左上移动
+					nowY -= step;
+					nowX -= step/3;
+					break;
+				case 3://斜向左上移动
+					nowY -= step;
+					nowX += step/3;
+					break;
+				case 4:
+					nowY -= step;
+					nowX += step/2;
+					break;
+				case 5:
+					nowY -= step;
+					nowX -=step/2;
+					break;
 			}
 			canvas.drawBitmap(bulletPic, nowX, nowY, paint);
 		}
-		
-		//�ӵ�������Ļʱ��״̬��2
+
+		//子弹超出屏幕时，状态置2
 		if(nowY < 0 || nowY > screenHeight || nowX < 0 || nowX > screenWidth){
 			state = 2;
 		}
 	}
-	
-	
+
+
 	/**
-	 * �ӵ�����ײ��⣬��л���boss��ײ,��ײʱ�����ӵ���״̬Ϊ0��ͬʱ��ȥ�л���boss����ӦѪ��
+	 * 子弹的碰撞检测，与敌机和boss碰撞,碰撞时更改子弹的状态为0，同时减去敌机和boss的相应血量
 	 */
 	public void impact(){
 		for(Plane enemy:enemys){
@@ -104,18 +104,18 @@ public class Bullet {
 					if(enemy.health <= 0 && FinalPlaneActivity.soundFlag){
 						FinalPlaneActivity.bombMusic.start();
 					}
-					
+
 					if(belongTo){
-						Fighting.num++;
-						Fighting.score+=10;
-						Log.i("wy", "���ел�!�л�Ѫ��:"+enemy.health+",����л���:"+Fighting.num);
+						FightingView.num++;
+						FightingView.score+=10;
+						Log.i("wy", "命中敌机!敌机血量:"+enemy.health+",消灭敌机输:"+FightingView.num);
 					}else{
-						Log.i("wy", "������!Ѫ��:"+enemy.health);
+						Log.i("wy", "被命中!血量:"+enemy.health);
 					}
 				}
 			}
 		}
-		
+
 		if(belongTo){
 			if(boss.state == 1 && state == 1){
 				if((nowX > boss.nowX && nowX < (boss.nowX + boss.width) && nowY > boss.nowY && nowY < (boss.nowY + boss.height))
@@ -125,17 +125,17 @@ public class Bullet {
 						FinalPlaneActivity.bombMusic.start();
 					}
 					state = 0;
-					Log.i("wy", "����boss!Ѫ��:"+boss.health);
+					Log.i("wy", "命中boss!血量:"+boss.health);
 				}
 			}
 		}
 	}
-	
+
 	/**
-	 * �����ӵ�
-	 * @param planeX �ɻ���ǰ��λ�õ�X����
-	 * @param planeY �ɻ���ǰ��λ�õ�Y����
-	 * @param style �ӵ����е�ģʽ
+	 * 重置子弹
+	 * @param planeX 飞机当前的位置的X坐标
+	 * @param planeY 飞机当前的位置的Y坐标
+	 * @param style 子弹运行的模式
 	 */
 	public void reset(int planeX,int planeY,int style){
 		state = 1;

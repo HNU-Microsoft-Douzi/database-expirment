@@ -10,9 +10,9 @@ public class PlaneDBHelper extends SQLiteOpenHelper {
 	static final String NAME = "name";
 	static final String SCORE = "score";
 	static final String TABLE = "rank";
-	
+
 	public PlaneDBHelper(Context context, String name, CursorFactory factory,
-			int version) {
+						 int version) {
 		super(context, name, factory, version);
 		// TODO Auto-generated constructor stub
 	}
@@ -32,3 +32,4 @@ public class PlaneDBHelper extends SQLiteOpenHelper {
 	}
 
 }
+

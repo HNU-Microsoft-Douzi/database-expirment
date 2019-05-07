@@ -26,80 +26,80 @@ public class Rank extends Activity {
 	Intent intent;
 	EditText edtName;
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.rank);
-        lvRank = (ListView) findViewById(R.id.lv_rank);
-        dbHelper = new PlaneDBHelper(this, "FinalPlaneDB", null, 1);
-        getAllRank();//��ȡ�����˵ļ�¼
-        rank();//�Լ�¼����С�����˳������
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.rank);
+		lvRank = (ListView) findViewById(R.id.lv_rank);
+		dbHelper = new PlaneDBHelper(this, "FinalPlaneDB", null, 1);
+		getAllRank();//获取所有人的记录
+		rank();//对记录按从小到大的顺序排序
 
-        adapter = new SimpleAdapter(this, listRank, R.layout.ranklist, new String[]{"num","name","score"}, new int[]{R.id.txt_id,R.id.txt_name,R.id.txt_score});
-        Log.i("wy", "��������ʼ���ɹ�");
-        lvRank.setAdapter(adapter);
-        edtName = new EditText(this);
-        intent = getIntent();
-        if(intent.getIntExtra("score", -1) != -1){
-        	int score = intent.getIntExtra("score", 0);
-        	new AlertDialog.Builder(this).setTitle("��¼")
-        	.setView(edtName)
-			.setIcon(android.R.drawable.ic_dialog_info)
-			.setPositiveButton("ȷ��", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					insert(edtName.getText().toString(), intent.getIntExtra("score", 0)+"");
-					Log.i("wy", "����ɹ�");
-					listRank = getAllRank();
-					rank();
-					adapter.notifyDataSetChanged();
-				}
-			})
-			.setNegativeButton("ȡ��", new DialogInterface.OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					// TODO Auto-generated method stub
-					insert("unknown", intent.getIntExtra("score", 0)+"");
-					Log.i("wy", "����ɹ�");
-					listRank = getAllRank();
-					rank();
-					adapter.notifyDataSetChanged();
-				}
-			}).show();
-        }
+		adapter = new SimpleAdapter(this, listRank, R.layout.ranklist, new String[]{"num","name","score"}, new int[]{R.id.txt_id,R.id.txt_name,R.id.txt_score});
+		Log.i("wy", "适配器初始化成功");
+		lvRank.setAdapter(adapter);
+		edtName = new EditText(this);
+		intent = getIntent();
+		if(intent.getIntExtra("score", -1) != -1){
+			int score = intent.getIntExtra("score", 0);
+			new AlertDialog.Builder(this).setTitle("记录")
+					.setView(edtName)
+					.setIcon(android.R.drawable.ic_dialog_info)
+					.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							insert(edtName.getText().toString(), intent.getIntExtra("score", 0)+"");
+							Log.i("wy", "插入成功");
+							listRank = getAllRank();
+							rank();
+							adapter.notifyDataSetChanged();
+						}
+					})
+					.setNegativeButton("取消", new DialogInterface.OnClickListener() {
+
+						@Override
+						public void onClick(DialogInterface dialog, int which) {
+							// TODO Auto-generated method stub
+							insert("unknown", intent.getIntExtra("score", 0)+"");
+							Log.i("wy", "插入成功");
+							listRank = getAllRank();
+							rank();
+							adapter.notifyDataSetChanged();
+						}
+					}).show();
+		}
 	}
-	
+
 	private List<Map<String,String>> getAllRank(){
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
-    	Cursor cursor = db.query(dbHelper.TABLE, null, null, null, null, null, null);
-    	listRank.clear();
-    	if(cursor != null){
-    		Log.i("wy", "��¼:"+cursor.getCount());
-    		if(cursor.moveToFirst()){
-    			while(!cursor.isAfterLast()){
-    				Map<String, String> map = new HashMap<String, String>();
-    				map.put("_id", cursor.getInt(cursor.getColumnIndex(dbHelper.ID))+"");
-    				map.put("name", cursor.getString(cursor.getColumnIndex(dbHelper.NAME)));
-    				map.put("score", cursor.getInt(cursor.getColumnIndex(dbHelper.SCORE))+"");
-    				listRank.add(map);
-    				cursor.moveToNext();
-    			}
-    		}
-    	}else{
-    		Log.i("wy", "û�м�¼");
-    	}
-    	return listRank;
+		Cursor cursor = db.query(dbHelper.TABLE, null, null, null, null, null, null);
+		listRank.clear();
+		if(cursor != null){
+			Log.i("wy", "记录:"+cursor.getCount());
+			if(cursor.moveToFirst()){
+				while(!cursor.isAfterLast()){
+					Map<String, String> map = new HashMap<String, String>();
+					map.put("_id", cursor.getInt(cursor.getColumnIndex(dbHelper.ID))+"");
+					map.put("name", cursor.getString(cursor.getColumnIndex(dbHelper.NAME)));
+					map.put("score", cursor.getInt(cursor.getColumnIndex(dbHelper.SCORE))+"");
+					listRank.add(map);
+					cursor.moveToNext();
+				}
+			}
+		}else{
+			Log.i("wy", "没有记录");
+		}
+		return listRank;
 	}
-	
+
 	private void insert(String name,String score){
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
-    	ContentValues values = new ContentValues();
-    	values.put("name", name);
-    	values.put("score", score);
-    	db.insert(dbHelper.TABLE, null, values);
+		ContentValues values = new ContentValues();
+		values.put("name", name);
+		values.put("score", score);
+		db.insert(dbHelper.TABLE, null, values);
 	}
-	
+
 	private void rank(){
 		for(int i = 0;i < listRank.size();i++){
 			for(int j = i;j < listRank.size();j++){
@@ -111,8 +111,8 @@ public class Rank extends Activity {
 			}
 		}
 		for(int i = 0; i < listRank.size(); i++){
-			listRank.get(i).put("num", (i+1)+"");//�趨����
+			listRank.get(i).put("num", (i+1)+"");//设定名次
 		}
 	}
-	
+
 }

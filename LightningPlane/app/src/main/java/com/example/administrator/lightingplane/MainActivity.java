@@ -1,7 +1,6 @@
 package com.example.administrator.lightingplane;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -38,8 +37,8 @@ public class MainActivity extends Activity implements OnClickListener{
 			Intent intent = new Intent(this, SettingActivity.class);
 			startActivity(intent);
 		}else if(view == btnOut){
-			Fighting.flag = false;
-			Fighting.pause = true;
+			FightingView.flag = false;
+			FightingView.pause = true;
 			finish();
 		}
 	}
