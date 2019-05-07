@@ -61,7 +61,7 @@ public class FinalPlaneActivity extends Activity {
         shotMusic = MediaPlayer.create(this, R.raw.bullet);
         bombMusic = MediaPlayer.create(this, R.raw.bomb);
         backMusic.setLooping(true);
-        SharedPreferences share = getSharedPreferences("test", Context.MODE_WORLD_READABLE+Context.MODE_WORLD_WRITEABLE);
+        SharedPreferences share = getSharedPreferences("test", Context.MODE_PRIVATE+Context.MODE_PRIVATE);
         backMusicFlag = share.getBoolean("backMusicFlag", true);
         soundFlag = share.getBoolean("soundFlag", true);
         

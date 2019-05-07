@@ -11,8 +11,7 @@
         android:textSize="30sp"
         android:text="@string/rank"
         android:textColor="#ffff00"
-        android:gravity="center"
-        />
+        android:gravity="center"/>
     
     <TableLayout
     android:layout_width="fill_parent"
