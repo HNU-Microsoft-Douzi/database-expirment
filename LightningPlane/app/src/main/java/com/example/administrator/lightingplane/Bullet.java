@@ -68,15 +68,15 @@ public class Bullet {
 					nowY -= step;
 					nowX -= step/3;
 					break;
-				case 3://斜向左上移动
+				case 3://斜向右上移动
 					nowY -= step;
 					nowX += step/3;
 					break;
-				case 4:
+				case 4: // 斜向最左上移动
 					nowY -= step;
 					nowX += step/2;
 					break;
-				case 5:
+				case 5: // 斜向最右上移动
 					nowY -= step;
 					nowX -=step/2;
 					break;

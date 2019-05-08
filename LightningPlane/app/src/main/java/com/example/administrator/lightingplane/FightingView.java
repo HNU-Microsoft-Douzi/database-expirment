@@ -352,7 +352,6 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 			bg1+=2;
 			bg2+=2;
 		}
-
 	}
 
 	/**
@@ -365,7 +364,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		// TODO Auto-generated method stub
 
 		if(event.getAction() == MotionEvent.ACTION_DOWN){
-			if(event.getX() > 0 && event.getX() < 30 && event.getY() > screenHeight - 10 && event.getY() < screenHeight && plane.bomb > 0){
+			if(event.getX() > 0 && event.getX() < 150 && event.getY() > screenHeight - 150 && event.getY() < screenHeight && plane.bomb > 0){
 				bombFlag = true;
 			}else{
 				moveToX = (int) event.getX();

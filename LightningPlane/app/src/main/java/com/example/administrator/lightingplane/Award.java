@@ -86,7 +86,8 @@ public class Award{
 								bullet.damage += 10;
 							}
 						}
-						if(FightingView.plane.shotStyle < 5)
+						// 设置飞机的子弹数目只要小于10，就可以增进子弹数目和子弹强度
+						if(FightingView.plane.shotStyle < 10)
 							FightingView.plane.shotStyle ++;
 						break;
 					case 4:
