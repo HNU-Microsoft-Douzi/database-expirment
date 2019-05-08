@@ -100,7 +100,7 @@ public class Enemy extends Plane {
 			state = 2;
 		}
 		//子弹移动
-		bulletsMove(canvas,paint);
+		bulletsMove(canvas,paint, 1);
 	}
 
 	/* (non-Javadoc)

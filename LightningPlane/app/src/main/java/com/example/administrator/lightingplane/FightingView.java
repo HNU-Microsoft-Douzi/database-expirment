@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
@@ -91,8 +92,8 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		//初始化飞机图片
 		Bitmap[] temp = new Bitmap[3];
 		temp[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my);
-		temp[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_l);
-		temp[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my_2);
+		temp[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my);
+		temp[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.my);
 		temp[0] = Bitmap.createScaledBitmap(temp[0], temp[0].getWidth()/2, temp[0].getHeight()/2, true);
 		temp[1] = Bitmap.createScaledBitmap(temp[1], temp[1].getWidth()/2, temp[1].getHeight()/2, true);
 		temp[2] = Bitmap.createScaledBitmap(temp[2], temp[2].getWidth()/2, temp[2].getHeight()/2, true);
@@ -101,7 +102,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		Bitmap[] temp1 = new Bitmap[3];
 		temp1[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
 		temp1[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
-		temp1[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3_t);
+		temp1[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3);
 		boss = new Boss(context, screenWidth, screenHeight, temp1);
 
 		//初始化敌机
@@ -188,6 +189,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.height = boss.planePics[0].getHeight();
 					boss.moveStyle = 0;//左右水平移动
 					boss.shotStyle = 1;//发射一枚子弹
+					boss.changeBossBulletPic(R.drawable.bossbullet1);
 					boss.health = 1000;
 					break;
 				case 2:
@@ -196,6 +198,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
+					boss.changeBossBulletPic(R.drawable.bossbullet2);
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						int enemyMoveStyle = Math.abs(random.nextInt()%2);
@@ -207,9 +210,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 				case 3:
 					boss.moveStyle = 1;
 					boss.shotStyle = 3;
-					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3_t);
+					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3);
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
+					boss.changeBossBulletPic(R.drawable.bossbullet3);
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
@@ -223,6 +227,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss4);
 					boss.width = boss.planePics[0].getWidth();
 					boss.health = boss.planePics[0].getHeight();
+					boss.changeBossBulletPic(R.drawable.bossbullet4);
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
@@ -276,11 +281,13 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 			}
 		}
 
-		drawEnemy(canvas);//画敌机
+		drawEnemy(canvas); // 画敌机
 		plane.move(canvas, paint, moveToX - plane.width/2, moveToY - plane.height/2);//画战机
 		award.move(canvas, paint);
-		canvas.drawText("分数:"+score, 10, 20, paint);
-		canvas.drawText("关卡"+round, screenWidth - 80, 20, paint);
+		paint.setTextSize(50);
+		paint.setColor(Color.WHITE);
+		canvas.drawText("分数:"+score, 20, 100, paint);
+		canvas.drawText("关卡"+round, screenWidth - 200, 100, paint);
 		if(pause){
 			canvas.drawBitmap(playIcon, screenWidth - 30, 0, paint);
 		}
@@ -348,8 +355,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
 	}
 
-
-
+	/**
+	 * 控制飞机移动
+	 * @param event
+	 * @return
+	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		// TODO Auto-generated method stub

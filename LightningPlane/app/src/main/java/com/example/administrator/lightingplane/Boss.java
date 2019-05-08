@@ -31,6 +31,12 @@ public class Boss extends Plane {
 		}
 	}
 
+	public void changeBossBulletPic(int id) {
+		for (Bullet bullet : bullets) {
+			bullet.bulletPic = BitmapFactory.decodeResource(context.getResources(), id);
+		}
+	}
+
 
 	@Override
 	public void move(Canvas canvas, Paint paint, int moveToX, int moveToY) {
@@ -74,7 +80,7 @@ public class Boss extends Plane {
 		}
 
 		//子弹移动
-		bulletsMove(canvas,paint);
+		bulletsMove(canvas,paint, 2);
 	}
 
 

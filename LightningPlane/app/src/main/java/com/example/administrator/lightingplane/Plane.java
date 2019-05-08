@@ -99,7 +99,6 @@ public class Plane {
 		}
 	}
 
-
 	/**
 	 * 移动飞机和飞机的子弹,包括飞机的爆炸
 	 * @param canvas 画布
@@ -135,7 +134,6 @@ public class Plane {
 				canvas.drawBitmap(myLives, screenWidth - myLives.getWidth()*i, screenHeight-5-myLives.getHeight(), paint);
 			}
 
-
 			int i = 0;//移动时飞机显示的图片集合中的下标
 			if(Math.abs(moveToX-nowX)<STEP){
 				nowX = moveToX;
@@ -150,7 +148,7 @@ public class Plane {
 				i = 1;
 			}
 
-			if(Math.abs(moveToY-nowY)<STEP){
+			if(Math.abs(moveToY-nowY) < STEP){
 				nowY = moveToY;
 			}
 			else if(moveToY > nowY && moveToY < screenHeight && moveToY > 0)
@@ -159,14 +157,15 @@ public class Plane {
 				nowY -= STEP;
 			canvas.drawBitmap(planePics[i], nowX, nowY, paint);
 		}
-		bulletsMove(canvas,paint);
+		bulletsMove(canvas,paint, 0);
 	}
 
 
 	/**
 	 * 飞机中的子弹移动和重置
+	 * planeStyle: 0： 本机， 1：敌机  2：Boss
 	 */
-	public void bulletsMove(Canvas canvas, Paint paint){
+	public void bulletsMove(Canvas canvas, Paint paint, int planeStyle){
 
 		//子弹移动
 		for(int i = 0; i< bullets.size(); i++){
@@ -181,8 +180,13 @@ public class Plane {
 				case 1://发射一枚子弹
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX + width/2, nowY, 1);
-
+							if (planeStyle == 0) {
+								bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX + width / 2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX + width / 2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
@@ -190,13 +194,25 @@ public class Plane {
 				case 2://发射两枚子弹
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX-bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX-bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX+bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX+bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
@@ -204,20 +220,37 @@ public class Plane {
 				case 3://发射三枚子弹
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX-bullet.width + width/2, nowY, 2);
+							if (planeStyle == 0) {
+								bullet.reset(nowX-bullet.width + width/2, nowY - height * 8 / 10, 2);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 2);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 2);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX+bullet.width + width/2, nowY, 3);
-
+							if (planeStyle == 0) {
+								bullet.reset(nowX+bullet.width + width/2, nowY - height * 8 / 10, 3);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 3);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 3);
+							}
 							break;
 						}
 					}
@@ -227,7 +260,13 @@ public class Plane {
 					for(int i = 1; i <= 5; i++){
 						for(Bullet bullet:bullets){
 							if(bullet.state==2){
-								bullet.reset(nowX + width/2, nowY, i);
+								if (planeStyle == 0) {
+									bullet.reset(nowX + width/2, nowY - height * 8 / 10, i);
+								} else if (planeStyle == 1) {
+									bullet.reset(nowX + width/2, nowY + height * 8 / 10, i);
+								} else if (planeStyle == 2) {
+									bullet.reset(nowX + width/2, nowY + height * 8 / 10, i);
+								}
 								break;
 							}
 						}
@@ -237,31 +276,61 @@ public class Plane {
 				case 5:
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX-bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX-bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX-bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX+bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX+bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX+bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX-2*bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX-2*bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX-2*bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX-2*bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
 					for(Bullet bullet:bullets){
 						if(bullet.state==2){
-							bullet.reset(nowX+2*bullet.width + width/2, nowY, 1);
+							if (planeStyle == 0) {
+								bullet.reset(nowX+2*bullet.width + width/2, nowY - height * 8 / 10, 1);
+							} else if (planeStyle == 1) {
+								bullet.reset(nowX+2*bullet.width + width/2, nowY + height * 8 / 10, 1);
+							} else if (planeStyle == 2) {
+								bullet.reset(nowX+2*bullet.width + width/2, nowY + height * 8 / 10, 1);
+							}
 							break;
 						}
 					}
