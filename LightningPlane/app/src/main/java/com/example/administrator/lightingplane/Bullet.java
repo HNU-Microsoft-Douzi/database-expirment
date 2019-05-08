@@ -4,13 +4,17 @@ import java.util.List;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
+
+import com.example.administrator.lightingplane.util.LogUtil;
 
 /**
  * 子弹实体类
  */
 public class Bullet {
+	private static final String TAG = "Bullet";
 	public int damage;//子弹的威力
 	public int style;//子弹的运动方式
 
@@ -23,6 +27,8 @@ public class Bullet {
 	public int height;//子弹的高
 	public int step;//子弹的速度
 	public int state;//子弹的状态,0：死亡爆炸状态，1：生存状态，2：可被重置状态
+
+	private int rotation; // 子弹的旋转角度，初始为0，轴向朝手机屏幕的正上方
 
 	public Animation animation;
 	List<Plane> enemys;
@@ -37,10 +43,12 @@ public class Bullet {
 		style = 0;
 		step = 10;
 		state = 2;
+		rotation = 0;
 		width = bulletPic.getWidth();
 		height = bulletPic.getHeight();
 	}
 
+	private Matrix matrix = new Matrix();
 	/**
 	 * 移动子弹,子弹状态为0时爆炸，1时移动
 	 * @param canvas 画布
@@ -67,21 +75,29 @@ public class Bullet {
 				case 2://斜向左上移动
 					nowY -= step;
 					nowX -= step/3;
+					rotation = - 20;
 					break;
 				case 3://斜向右上移动
 					nowY -= step;
 					nowX += step/3;
+					rotation = 20;
 					break;
-				case 4: // 斜向最左上移动
+				case 4: // 斜向最右上移动
 					nowY -= step;
 					nowX += step/2;
+					rotation = 35;
 					break;
-				case 5: // 斜向最右上移动
+				case 5: // 斜向最左上移动
 					nowY -= step;
 					nowX -=step/2;
+					rotation = -35;
 					break;
 			}
-			canvas.drawBitmap(bulletPic, nowX, nowY, paint);
+			matrix.setRotate(rotation);
+			matrix.postTranslate(nowX, nowY);
+			LogUtil.d(TAG, "当前子弹的旋转角度为:" + rotation);
+			canvas.drawBitmap(bulletPic, matrix, paint);
+//			canvas.drawBitmap(bulletPic, nowX, nowY, paint);
 		}
 
 		//子弹超出屏幕时，状态置2
@@ -147,6 +163,7 @@ public class Bullet {
 			nowX = planeX - width/2;
 			nowY = planeY + 40;
 		}
+		this.rotation = 0;
 		this.style = style;
 	}
 }

@@ -23,7 +23,7 @@ public class Plane {
     public int STEP;//飞机的移动速度
     public Bitmap[] planePics = new Bitmap[3];//飞机的样子
     public List<Bullet> bullets = new ArrayList<Bullet>();//飞机的子弹对象数组
-    public int bulletCount = 1000; // 子弹的初始数量
+    public int bulletCount = 200; // 创建子弹的初始数目
     public Animation animation = null;//飞机死亡爆炸时的动画对象
     public int moveStyle;
 
@@ -67,6 +67,7 @@ public class Plane {
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz1));
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz2));
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz3));
+        // 一艘飞机只有bulletCount个子弹
         for (int i = 0; i < bulletCount; i++) {
             Bullet bullet = new Bullet(bulletPic, btDestroyPics);
             bullets.add(bullet);
@@ -213,14 +214,13 @@ public class Plane {
                 case 3://发射三枚子弹
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            // 左边的子弹要向左旋转60°
                             bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX - bullet.width - width / 2, nowY - height * 8 / 10, 2);
+                            bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 2);
                             break;
                         }
                     }
@@ -236,7 +236,7 @@ public class Plane {
                 case 4:
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 4);
+                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 5);
                             break;
                         }
                     }
@@ -254,7 +254,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 5);
+                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 4);
                             break;
                         }
                     }
@@ -263,7 +263,7 @@ public class Plane {
                 case 5:
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 4);
+                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 5);
                             break;
                         }
                     }
@@ -287,7 +287,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 5);
+                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 4);
                             break;
                         }
                     }
