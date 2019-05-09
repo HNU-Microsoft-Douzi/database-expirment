@@ -82,12 +82,12 @@ public class Bullet {
 					nowX += step/3;
 					rotation = 20;
 					break;
-				case 4: // 斜向最右上移动
+				case 4: // 斜向较右上移动
 					nowY -= step;
 					nowX += step/2;
 					rotation = 35;
 					break;
-				case 5: // 斜向最左上移动
+				case 5: // 斜向较左上移动
 					nowY -= step;
 					nowX -=step/2;
 					rotation = -35;
@@ -106,24 +106,38 @@ public class Bullet {
 		}
 	}
 
+    /**
+     * 改变子弹的样式
+     * @param bulletPic
+     */
+    public void changleBulletPic(Bitmap bulletPic) {
+	    this.bulletPic = bulletPic;
+    }
 
 	/**
 	 * 子弹的碰撞检测，与敌机和boss碰撞,碰撞时更改子弹的状态为0，同时减去敌机和boss的相应血量
 	 */
 	public void impact(){
+		// 主机子弹对敌机的碰撞检测
 		for(Plane enemy:enemys){
 			if(enemy.state == 1 && state == 1){
-				if((nowX > enemy.nowX && nowX < (enemy.nowX + enemy.width) && nowY > enemy.nowY && nowY < (enemy.nowY + enemy.height))
-						|| ((nowX+width) > enemy.nowX && (nowX+width) < (enemy.nowX + enemy.width) && (nowY + height) > enemy.nowY && (nowY + height) < (enemy.nowY + enemy.height))){
+				int offset = 20;
+				if((nowX > enemy.nowX + offset && nowX < (enemy.nowX + enemy.width - offset) && nowY > enemy.nowY + offset && nowY < (enemy.nowY + enemy.height - offset))
+						|| ((nowX+width) > enemy.nowX + offset && (nowX+width) < (enemy.nowX + enemy.width - offset) && (nowY + height) > enemy.nowY + offset && (nowY + height) < (enemy.nowY + enemy.height - offset))){
 					state = 0;
-					enemy.health -= damage;
+					if (FightingView.plane.shield > 0) {
+					    FightingView.plane.shield -= damage;
+                    } else {
+					    FightingView.plane.shield = 0;
+                        enemy.health -= damage;
+                    }
 					if(enemy.health <= 0 && FinalPlaneActivity.soundFlag){
 						FinalPlaneActivity.bombMusic.start();
 					}
 
 					if(belongTo){
 						FightingView.enemyDestroyedNum++;
-						FightingView.score+=10;
+						FightingView.score += 10;
 						Log.i("wy", "命中敌机!敌机血量:"+enemy.health+",消灭敌机输:"+FightingView.enemyDestroyedNum);
 					}else{
 						Log.i("wy", "被命中!血量:"+enemy.health);
@@ -132,6 +146,7 @@ public class Bullet {
 			}
 		}
 
+		// 主机对Boss机的碰撞检测
 		if(belongTo){
 			if(boss.state == 1 && state == 1){
 				if((nowX > boss.nowX && nowX < (boss.nowX + boss.width) && nowY > boss.nowY && nowY < (boss.nowY + boss.height))

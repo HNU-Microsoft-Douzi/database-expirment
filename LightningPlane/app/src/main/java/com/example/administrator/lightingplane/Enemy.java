@@ -11,6 +11,7 @@ import android.graphics.Paint;
 public class Enemy extends Plane {
 	int moveStyle;
 	int STEPY = 10;
+
 	public Enemy(Context context, int screenWidth, int screenHeight,
 				 Bitmap[] planePics) {
 		super(context, screenWidth, screenHeight, planePics);
@@ -29,7 +30,10 @@ public class Enemy extends Plane {
 		}
 	}
 
-	public void impact() {
+	/**
+	 * 敌机对本机造成伤害的碰撞检测
+	 */
+	private void impact() {
 		for(Plane enemy:enemys){
 			if(enemy.state == 1 && state == 1){
 				if((nowX > enemy.nowX && nowX < (enemy.nowX + enemy.width) && nowY > enemy.nowY && nowY < (enemy.nowY + enemy.height))
@@ -90,7 +94,7 @@ public class Enemy extends Plane {
 //					break;
 			}
 
-			canvas.drawBitmap(planePics[0], nowX, nowY, paint);
+			canvas.drawBitmap(planePics[planeStyleIndex], nowX, nowY, paint);
 		}
 
 

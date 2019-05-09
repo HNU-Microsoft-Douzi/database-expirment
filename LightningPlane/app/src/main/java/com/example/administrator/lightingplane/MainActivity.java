@@ -7,6 +7,10 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+/**
+ * 应该在主界面呈现当前用户的金币数目，加一个能够购买的商城页面和自己拥有的战机页面就完了。
+ */
+
 public class MainActivity extends Activity implements OnClickListener{
 	Button btnStart = null;
 	Button btnRank = null;

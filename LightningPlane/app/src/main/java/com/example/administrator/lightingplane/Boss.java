@@ -9,9 +9,15 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Paint.Style;
 
+import com.example.administrator.lightingplane.constant.TestConstant;
+import com.example.administrator.lightingplane.event.OnBossDiedEvent;
+import com.example.administrator.lightingplane.util.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
+
 public class Boss extends Plane {
 
-	public int STEPX = 3;//
+	public int STEPX = 5;//
 	int maxHealth = 1;
 	public Boss(Context context, int screenWidth, int screenHeight,
 				Bitmap[] planePics) {
@@ -21,6 +27,7 @@ public class Boss extends Plane {
 		health = 1000;
 		lives = 1;
 		state = 2;
+		STEP = 10;
 
 		//改变子弹的属性
 		for(Bullet bullet:bullets){
@@ -45,10 +52,14 @@ public class Boss extends Plane {
 		if(health <= 0){
 			if(!animation.isEnd)
 				animation.start(canvas, paint, nowX, nowY);
+
 			else{
 				state = 2;
 				animation.isEnd = false;
 			}
+			// 这里要生成奖励
+			LogUtil.d(TestConstant.AWARD_TEST, "Boss 已死");
+			EventBus.getDefault().post(new OnBossDiedEvent());
 		}else{
 			//画血条
 			Rect rect = new Rect(0, 0, screenWidth*health/maxHealth, 10);
@@ -69,7 +80,7 @@ public class Boss extends Plane {
 					}
 					nowX += STEP;
 
-					if(nowY <= 0 || nowY >= 60){
+					if(nowY <= 0 || nowY >= 300){
 						STEPX = -STEPX;
 					}
 					nowY += STEPX;
@@ -104,9 +115,10 @@ public class Boss extends Plane {
 
 	@Override
 	public void reset(){
-		nowY = 1;
+		nowY = 100;
 		nowX = (screenWidth - width)/2;
 		state = 1;
+		STEP = 10;
 		health = 1;
 	}
 

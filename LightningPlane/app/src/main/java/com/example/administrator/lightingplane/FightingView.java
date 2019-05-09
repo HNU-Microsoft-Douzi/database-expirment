@@ -15,6 +15,15 @@ import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
+import com.example.administrator.lightingplane.constant.TestConstant;
+import com.example.administrator.lightingplane.event.OnBossDiedEvent;
+import com.example.administrator.lightingplane.event.OnCoinIncreaseEvent;
+import com.example.administrator.lightingplane.util.LogUtil;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
 /**
  * 战斗View,是整个战斗界面的呈现View
  */
@@ -42,19 +51,20 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
 	public static Plane plane = null;	//主角飞机对象
 
-	int enemyCount = 10; // 敌机个数
+	int enemyCount = 25; // 敌机个数
 
 	List<Plane> enemys = new ArrayList<>(); // 敌机组
 	Boss boss;
-	Award award; // 奖励
+//	Award award; // 奖励
 
+	List<Award> awards = new ArrayList<>();
 	Context context;
 	// 触屏后飞机将要移动到的位置的X、Y坐标
 	int moveToX = 0;
 	int moveToY = 0;
 
 	int enemyFlag = 0; // 敌机重置标志位
-	int enemyInterval = 20; // 敌机出现时间间隔
+	int enemyInterval = 10; // 敌机出现时间间隔
 	boolean bombFlag = false;
 
 	public static int score = 0;//总分
@@ -62,7 +72,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 	public int round = 1;//关卡
 
 	Random random = new Random();
-	public int bossFlag = 20;//消灭bossFlag个敌机后boss才会出现
+	public int bossFlag = 10;//消灭bossFlag个敌机后boss才会出现
 
 	Bitmap pauseIcon = null;
 	Bitmap playIcon = null;
@@ -70,6 +80,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
 	FightingView(Context context,int screenWidth, int screenHeight) {
 		super(context);
+		EventBus.getDefault().register(this);
 		this.context = context;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
@@ -84,6 +95,19 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		init();
 		//获取焦点
 		setFocusable(true);
+		new Thread(() -> {
+			try {
+				Thread.sleep(10000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			for (Award award : awards) {
+				if (!award.state) {
+					awards.get(0).state = true;
+					break;
+				}
+			}
+		}).start();
 	}
 
 
@@ -99,17 +123,21 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		temp[2] = Bitmap.createScaledBitmap(temp[2], temp[2].getWidth()/2, temp[2].getHeight()/2, true);
 
 		//初始化boss
-		Bitmap[] temp1 = new Bitmap[3];
+		Bitmap[] temp1 = new Bitmap[5];
 		temp1[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
 		temp1[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
 		temp1[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3);
+		temp1[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss4);
+		temp1[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss5);
 		boss = new Boss(context, screenWidth, screenHeight, temp1);
 
 		//初始化敌机
-		Bitmap[] temp2 = new Bitmap[3];
+		Bitmap[] temp2 = new Bitmap[5];
 		temp2[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy13);
-		temp2[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy13_t);
-		temp2[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy14_t);
+		temp2[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy14);
+		temp2[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy15);
+		temp2[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy16);
+		temp2[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy17);
 		for(int i = 0; i < enemyCount; i++){
 			Enemy enemy = new Enemy(context, screenWidth, screenHeight, temp2);
 			enemy.moveStyle = 1;
@@ -121,17 +149,19 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		plane.enemys = enemys;
 		plane.boss = boss;
 		plane.setTarget();//给飞机设置目标
-		plane.shotInterval = 3;//设置飞机射击速度
+		plane.shotInterval = 10;//设置飞机射击速度
 		for(Plane enemy:enemys){
-			enemy.enemys.add(plane);
-			enemy.setTarget();
+			enemy.enemys.add(plane); // 给每个敌机设置敌人为本机
+			enemy.setTarget();	// 给敌机的每颗子弹设置敌人为本机
 		}
 		boss.enemys.add(plane);
 		boss.setTarget();
 		boss.shotStyle = 5;
 		boss.moveStyle = 1;
-		award = new Award(context, screenWidth, screenHeight);
-		award.state = true;
+		awards.add(new Award(context, screenWidth, screenHeight));
+		awards.add(new Award(context, screenWidth, screenHeight));
+		awards.add(new Award(context, screenWidth, screenHeight));
+//		award.state = true;
 
 		if(FinalPlaneActivity.backMusicFlag){
 			FinalPlaneActivity.backMusic.start();
@@ -174,7 +204,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		canvas = holder.lockCanvas();
 		drawBackGround(canvas);
 
-		//打满十个小敌机，会出现boss
+		//打满bossFlag个小敌机，会出现boss
 		if(enemyDestroyedNum == bossFlag){
 			boss.reset();//boss重置
 			boss.state = 2;//刚重置时boss不显示
@@ -187,10 +217,18 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
-					boss.moveStyle = 0;//左右水平移动
+					boss.moveStyle = 0; //左右水平移动
 					boss.shotStyle = 1;//发射一枚子弹
 					boss.changeBossBulletPic(R.drawable.bossbullet1);
-					boss.health = 1000;
+					boss.health = 100;
+					for(Plane enemy:enemys){
+						enemy.planeStyleIndex = 1;
+						if (random.nextInt(5) == 1) {
+							enemy.planeStyleIndex = 2;
+							enemy.moveStyle = Math.abs(random.nextInt()%2);
+							enemy.health = 40;
+						}
+					}
 					break;
 				case 2:
 					boss.moveStyle = 1;
@@ -203,9 +241,16 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					for(Plane enemy:enemys){
 						int enemyMoveStyle = Math.abs(random.nextInt()%2);
 						enemy.moveStyle = enemyMoveStyle;
-						enemy.health = 20;
+						enemy.health = 40;
+						enemy.planeStyleIndex = 2;
+						if (random.nextInt(5) == 1) {
+							enemy.planeStyleIndex = 3;
+							enemy.shotStyle = 1;
+							enemy.health = 80;
+							enemy.planeStyleIndex = 3;
+						}
 					}
-					boss.health = 3000;
+					boss.health = 5000;
 					break;
 				case 3:
 					boss.moveStyle = 1;
@@ -217,9 +262,15 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
-						enemy.health = 30;
+						enemy.health = 80;
+						enemy.planeStyleIndex = 3;
+						if (random.nextInt(5) == 1) {
+							enemy.shotStyle = 1;
+							enemy.health = 200;
+							enemy.planeStyleIndex = 4;
+						}
 					}
-					boss.health = 6000;
+					boss.health = 20000;
 					break;
 				case 4:
 					boss.moveStyle = 1;
@@ -231,9 +282,15 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
-						enemy.health = 40;
+						enemy.health = 200;
+						enemy.planeStyleIndex = 4;
+						if (random.nextInt(5) == 1) {
+							enemy.shotStyle = 1;
+							enemy.health = 1000;
+							enemy.planeStyleIndex = 5;
+						}
 					}
-					boss.health = 10000;
+					boss.health = 50000;
 					break;
 				case 5:
 					boss.moveStyle = 1;
@@ -244,9 +301,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
-						enemy.health = 50;
+						enemy.health = 1000;
+						enemy.planeStyleIndex = 5;
 					}
-					boss.health = 15000;
+					boss.health = 100000;
 					break;
 				default :round ++;
 			}
@@ -258,7 +316,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 				boss.move(canvas, paint, moveToX, moveToY);//画boss，boss死亡时会将消灭敌机输重新置0
 			if(boss.health <= 0){
 				round++;
-				bossFlag+=20;
+				bossFlag *= 2;
 				enemyDestroyedNum = 0;
 				boss.state = 2;
 			}
@@ -283,7 +341,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
 		drawEnemy(canvas); // 画敌机
 		plane.move(canvas, paint, moveToX - plane.width/2, moveToY - plane.height/2);//画战机
-		award.move(canvas, paint);
+		// 绘制奖励
+		for (Award award : awards) {
+			award.move(canvas, paint);
+		}
 		paint.setTextSize(50);
 		paint.setColor(Color.WHITE);
 		canvas.drawText("分数:"+score, 20, 100, paint);
@@ -403,6 +464,25 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		// TODO Auto-generated method stub
 		flag = false;
+		EventBus.getDefault().unregister(this);
+	}
+
+	/**
+	 *
+	 * @param event
+	 */
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEventAction(OnBossDiedEvent event) {
+		LogUtil.d(TestConstant.AWARD_TEST, "FightingView已經執行了");
+		for (Award award : awards) {
+			award.reset(boss.nowX + boss.width / 2, boss.nowY + boss.height / 2);
+		}
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void onEventAction(OnCoinIncreaseEvent event) {
+		LogUtil.d(TestConstant.AWARD_TEST, "FightingView已經執行了");
+		// TODO要对用户进行提示告知用户当前金币数目增加
 	}
 
 }

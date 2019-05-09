@@ -9,4 +9,5 @@ package com.example.administrator.lightingplane.constant;
  * 修改备注:
  */
 public class PlaneConstant {
+    public static final String COIN_NUMBER = "coin_number";
 }

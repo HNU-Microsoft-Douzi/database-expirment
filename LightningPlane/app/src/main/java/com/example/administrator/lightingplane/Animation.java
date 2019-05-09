@@ -13,7 +13,7 @@ import android.graphics.Paint;
 public class Animation {
 	boolean isEnd = false;//动画是否播放完毕
 	int num;//当前播放的动画
-	List<Bitmap> list = new ArrayList<Bitmap>();
+	List<Bitmap> list;
 
 
 	public Animation(List<Bitmap> list){

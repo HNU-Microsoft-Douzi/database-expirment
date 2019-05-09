@@ -8,11 +8,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 
+import com.example.administrator.lightingplane.util.LogUtil;
+
 public class Plane {
+    private static final String TAG = "Plane";
     public int nowX;//当前位置的X坐标
     public int nowY;//当前位置的Y坐标
     public int width;//飞机的宽
@@ -21,31 +25,35 @@ public class Plane {
     public int health;//血量
     public int lives;//命数
     public int STEP;//飞机的移动速度
-    public Bitmap[] planePics = new Bitmap[3];//飞机的样子
-    public List<Bullet> bullets = new ArrayList<Bullet>();//飞机的子弹对象数组
-    public int bulletCount = 200; // 创建子弹的初始数目
+    public Bitmap[] planePics;//飞机的样子
+    private List<Bitmap> btPics = new ArrayList<>();
+    public List<Bullet> bullets = new ArrayList<>();//飞机的子弹对象数组
+    public int bulletCount = 300; // 创建子弹的初始数目
     public Animation animation = null;//飞机死亡爆炸时的动画对象
     public int moveStyle;
 
     public int shotFlag;//飞机发射子弹的标志位
     public int shotInterval = 10;//飞机发射子弹的间隔时间shotInterval*50毫秒
-    public int shotStyle = 5;//飞机发射子弹的模式,一次发射子弹的个数
+    public int shotStyle = 1;//飞机发射子弹的模式,一次发射子弹的个数
 
     public int screenWidth;//屏幕的宽
     public int screenHeight;//屏幕的高
     public Context context;
     List<Plane> enemys = new ArrayList<Plane>();
+    public int planeStyleIndex = 0; // 飞机的图片索引
     Boss boss;
     int bomb = 3;//飞机中的炸弹数
     Bitmap bombPic;
     Bitmap myLives;
+    Bitmap shieldPic;
+    public int shield;
 
     public Plane(Context context, int screenWidth, int screenHeight, Bitmap[] planePics) {
         this.screenWidth = screenWidth;
         this.screenHeight = screenHeight;
         nowX = screenWidth / 2;
         nowY = screenHeight * 2 / 3;
-        STEP = 10;
+        STEP = 50;
         health = 100;
         lives = 5;
         state = 1;
@@ -54,14 +62,25 @@ public class Plane {
         height = planePics[1].getHeight();
         //this.bullets = bullets;
         this.context = context;
-        //初始化炸弹图片
+        // 初始化防御罩的图片
+        shieldPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.addShield);
+        shieldPic = Bitmap.createScaledBitmap(bombPic, planePics[0].getWidth(), planePics[0].getHeight(), false);
+        // 初始化炸弹图片
         bombPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.bomb);
         bombPic = Bitmap.createScaledBitmap(bombPic, 50, 50, false);
         myLives = BitmapFactory.decodeResource(context.getResources(), R.drawable.plane0);
         myLives = Bitmap.createScaledBitmap(myLives, 50, 50, false);
-        //初始化飞机子弹
-        //初始化子弹图片
-        Bitmap bulletPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1);
+        // 初始化飞机子弹
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet2));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet3));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet4));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
+        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
         //初始化子弹爆炸图片
         List<Bitmap> btDestroyPics = new ArrayList<Bitmap>();
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz1));
@@ -69,7 +88,7 @@ public class Plane {
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz3));
         // 一艘飞机只有bulletCount个子弹
         for (int i = 0; i < bulletCount; i++) {
-            Bullet bullet = new Bullet(bulletPic, btDestroyPics);
+            Bullet bullet = new Bullet(btPics.get(0), btDestroyPics);
             bullets.add(bullet);
         }
 
@@ -87,7 +106,24 @@ public class Plane {
         destroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blasts10));
         destroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blasts11));
         animation = new Animation(destroyPics);
-
+        new Thread(() -> {
+            while (true) {
+                int i = 0;
+                for (Bullet bullet: bullets) {
+                    if (bullet.state == 2) i++;
+                }
+                if (i == 0) {
+                    for (Bullet bullet : bullets) {
+                        bullet.state = 2;
+                    }
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     /**
@@ -121,6 +157,12 @@ public class Plane {
                     reset();
             }
         } else {
+            // 画防御罩
+            if (shield > 0) {
+                Matrix matrix = new Matrix();
+                matrix.postTranslate(nowX, nowY);
+                canvas.drawBitmap(shieldPic, matrix, paint);
+            }
             //画血条
             paint.setStyle(Style.FILL);
             paint.setColor(Color.WHITE);
@@ -171,7 +213,7 @@ public class Plane {
      */
     public void bulletsMove(Canvas canvas, Paint paint, int planeStyle) {
 
-        //子弹移动
+        // 让已经存在的子弹移动
         for (int i = 0; i < bullets.size(); i++) {
             bullets.get(i).move(canvas, paint, screenWidth, screenHeight);
         }
@@ -186,6 +228,7 @@ public class Plane {
                         if (bullet.state == 2) {
                             if (planeStyle == 0) {
                                 bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.changleBulletPic(btPics.get(0));
                             } else if (planeStyle == 1) {
                                 bullet.reset(nowX + width / 2, nowY + height * 8 / 10, 1);
                             } else if (planeStyle == 2) {
@@ -199,14 +242,29 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             // 画第一颗子弹
-                            bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                            if (planeStyle == 0) {
+                                bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.changleBulletPic(btPics.get(1));
+                            } else if (planeStyle == 1) {
+                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                            } else if (planeStyle == 2) {
+                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                            }
                             break;
                         }
+
                     }
                     // 画第二颗子弹
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                            if (planeStyle == 0) {
+                                bullet.reset(nowX + bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.changleBulletPic(btPics.get(1));
+                            } else if (planeStyle == 1) {
+                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                            } else if (planeStyle == 2) {
+                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                            }
                             break;
                         }
                     }
@@ -215,12 +273,14 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                            bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 2);
+                            bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
                     }
@@ -228,6 +288,7 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + bullet.width + width / 2, nowY - height * 8 / 10, 3);
+                            bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
                     }
@@ -237,24 +298,28 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 5);
+                            bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 8 / 10, 2);
+                            bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 8 / 10, 3);
+                            bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 4);
+                            bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
@@ -263,31 +328,41 @@ public class Plane {
                 case 5:
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 5);
+                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10 + 38, 5);
+                            LogUtil.d(TAG, "第1个点的坐标:" + (nowX + width / 2 - 2 * bullet.width) + "," + (nowY - height * 8 / 10));
+                            bullet.changleBulletPic(btPics.get(4));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 8 / 10, 2);
+                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 8 / 10 + 12, 2);
+                            LogUtil.d(TAG, "第2个点的坐标:" + (nowX + width / 2 - bullet.width) + "," + (nowY - height * 8 / 10));
+                            bullet.changleBulletPic(btPics.get(4));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                            LogUtil.d(TAG, "第3个点的坐标:" + (nowX + width / 2) + "," + (nowY - height * 8 / 10));
+                            bullet.changleBulletPic(btPics.get(4));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 8 / 10, 3);
+                            LogUtil.d(TAG, "第4个点的坐标:" + (nowX + width / 2 + bullet.width) + "," + (nowY - height * 8 / 10));
+                            bullet.changleBulletPic(btPics.get(4));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 4);
+                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10 + 20, 4);
+                            LogUtil.d(TAG, "第5个点的坐标:" + (nowX + width / 2 + 2 * bullet.width) + "," + (nowY - height * 8 / 10 + 200));
+                            bullet.changleBulletPic(btPics.get(4));
                             break;
                         }
                     }
@@ -333,11 +408,11 @@ public class Plane {
         nowX = screenWidth / 2 - width / 2;
         nowY = screenHeight * 2 / 3;
         health = 100;
-        shotInterval = 10;
-        STEP = 10;
+//        shotInterval = 10;
+//        STEP = 50;
         state = 1;
         lives--;
         bomb = 3;
-        shotStyle = 1;
+//        shotStyle = 5;
     }
 }

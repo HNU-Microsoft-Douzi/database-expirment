@@ -1,5 +1,7 @@
 package com.example.administrator.lightingplane;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import android.content.Context;
@@ -7,6 +9,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+
+import com.example.administrator.lightingplane.constant.PlaneConstant;
+import com.example.administrator.lightingplane.event.OnCoinIncreaseEvent;
+import com.example.administrator.lightingplane.util.SharedPreferencesUtils;
+
+import org.greenrobot.eventbus.EventBus;
 
 /**
  * 奖励对象
@@ -19,7 +27,8 @@ public class Award{
 	int screenHeight;
 	int width;
 	int height;
-	Bitmap[] awardPics = new Bitmap[5];
+//	Bitmap[] awardPics = new Bitmap[5];
+	List<Bitmap> awardPics = new ArrayList<>();
 	int style;//奖励的类型
 	int STEPX = 5;
 	int STEPY = -5;
@@ -29,13 +38,17 @@ public class Award{
 		this.context = context;
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
-		awardPics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.addbomb);
-		awardPics[1] = BitmapFactory.decodeResource(context.getResources(), R.drawable.addhealth);
-		awardPics[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.addlife);
-		awardPics[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.addpower);
-		awardPics[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.addspeed);
-		width = awardPics[0].getWidth();
-		height = awardPics[1].getHeight();
+		awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addbomb)); // 增加一颗炸弹
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addhealth)); // 增加生命值
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addlife)); // 增加一条生命
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addpower)); // 增加子弹强度和子弹数目
+//        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addspeed)); // 增加速度
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addbomb)); // 增加金币数目
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addDefense));// 增加防护罩
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addbomb));
+
+		width = awardPics.get(0).getWidth();
+		height = awardPics.get(0).getHeight();
 	}
 
 	public void move(Canvas canvas, Paint paint){
@@ -47,7 +60,7 @@ public class Award{
 			}
 			nowY -= STEPY;
 			nowX += STEPX;
-			canvas.drawBitmap(awardPics[style], nowX, nowY, paint);
+			canvas.drawBitmap(awardPics.get(style), nowX, nowY, paint);
 		}else{
 			//重置
 			reset();
@@ -58,7 +71,7 @@ public class Award{
 		}
 	}
 
-	public void impact(){
+	private void impact(){
 		if(state && FightingView.plane.state == 1){
 			if((nowX > FightingView.plane.nowX && nowX < (FightingView.plane.nowX + FightingView.plane.width) && nowY > FightingView.plane.nowY && nowY < (FightingView.plane.nowY + FightingView.plane.height))
 					|| ((nowX + width) > FightingView.plane.nowX && (nowX + width) < (FightingView.plane.nowX + FightingView.plane.width) && nowY > FightingView.plane.nowY && nowY < (FightingView.plane.nowY + FightingView.plane.height))
@@ -67,43 +80,84 @@ public class Award{
 				state = false;
 				switch(style){
 					case 0:
-						if(FightingView.plane.bomb < 5)
+						if(FightingView.plane.bomb < 5) // 增加炸弹数目
 							FightingView.plane.bomb++;
 						break;
 					case 1:
-						if(FightingView.plane.health<100){
-							FightingView.plane.health += 10;
+						if(FightingView.plane.health<100){ // 增加飞机血量
+							FightingView.plane.health += 30;
 						}
 						break;
 					case 2:
-						if(FightingView.plane.lives < 5){
+						if(FightingView.plane.lives < 5){ // 增加飞机生命值
 							FightingView.plane.lives++;
 						}
 						break;
-					case 3:
-						if(FightingView.plane.bullets.get(0).damage < 50){
-							for(Bullet bullet:FightingView.plane.bullets){
-								bullet.damage += 10;
-							}
+					case 3: // 增加飞机子弹伤害并改变飞机的子弹状态
+//						if(FightingView.plane.bullets.get(0).damage < 50){
+//							for(Bullet bullet:FightingView.plane.bullets){
+//								bullet.damage += 10;
+//							}
+//						}
+//						// 设置飞机的子弹数目只要小于10，就可以增进子弹数目和子弹强度
+//						if(FightingView.plane.shotStyle < 10)
+//							FightingView.plane.shotStyle ++;
+						for(Bullet bullet:FightingView.plane.bullets){
+							bullet.damage += 10;
 						}
-						// 设置飞机的子弹数目只要小于10，就可以增进子弹数目和子弹强度
-						if(FightingView.plane.shotStyle < 10)
+						if (FightingView.plane.shotStyle < 5) {
 							FightingView.plane.shotStyle ++;
-						break;
-					case 4:
-						if(FightingView.plane.STEP < 30){
-							FightingView.plane.STEP += 5;
 						}
+						break;
+//					case 4:
+//						if(FightingView.plane.STEP < 30){ // 增加飞机速度
+//							FightingView.plane.STEP += 5;
+//						}
+//						break;
+                    case 4:
+						// 金币增加1000
+						int coinNumber = (int)SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+						SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 1000 + coinNumber);
+						EventBus.getDefault().post(new OnCoinIncreaseEvent());
+                        break;
+                    case 5:
+                        // TODO 增加一个能够吸收100伤害的防御罩
+						FightingView.plane.shield = 100; // 增加一个能够抵挡100伤害的盾
+                        break;
+                    case 6:
+                        // 开启特殊武器模式，直射激光，持续10s
+                        break;
+                    case 7:
+                        // 大幅增加飞机伤害，并对用户进行提示
+                        break;
+                    case 8:
+                        break;
+                    case 9:
+                        // 获得一辆新战机
+                        break;
 				}
 			}
 		}
 	}
 
-	public void reset(){
+	private void reset(){
 		Random random = new Random();
-		nowX = Math.abs(random.nextInt()%(screenWidth-width/2) + 1);
-		nowY = -Math.abs(random.nextInt()%(screenHeight));
-		style = Math.abs(random.nextInt()%5);
+		nowX = Math.abs(random.nextInt() % (screenWidth-width/2) + 1);
+		nowY = -Math.abs(random.nextInt() % (screenHeight));
+		style = Math.abs(random.nextInt() % awardPics.size());
+		state = false;
+	}
+
+	/**
+	 * reset when boss died
+	 * @param dx
+	 * @param dy
+	 */
+	public void reset(int dx, int dy) {
+		Random random = new Random();
+		nowX = dx;
+		nowY = dy;
+		style = Math.abs(random.nextInt() % awardPics.size());
 		state = true;
 	}
 }
