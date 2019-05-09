@@ -242,6 +242,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 							enemy.health = 40;
 						}
 					}
+					boss.health = 1000;
 					break;
 				case 2:
 					boss.moveStyle = 1;
