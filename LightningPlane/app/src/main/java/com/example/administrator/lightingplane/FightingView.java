@@ -15,10 +15,12 @@ import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
+import com.example.administrator.lightingplane.constant.PlaneConstant;
 import com.example.administrator.lightingplane.constant.TestConstant;
 import com.example.administrator.lightingplane.event.OnBossDiedEvent;
 import com.example.administrator.lightingplane.event.OnCoinIncreaseEvent;
 import com.example.administrator.lightingplane.util.LogUtil;
+import com.example.administrator.lightingplane.util.SharedPreferencesUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -51,7 +53,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
 	public static Plane plane = null;	//主角飞机对象
 
-	int enemyCount = 25; // 敌机个数
+	int enemyCount = 15; // 敌机个数
 
 	List<Plane> enemys = new ArrayList<>(); // 敌机组
 	Boss boss;
@@ -72,10 +74,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 	public int round = 1;//关卡
 
 	Random random = new Random();
-	public int bossFlag = 10;//消灭bossFlag个敌机后boss才会出现
+	public int bossFlag = 30;//消灭bossFlag个敌机后boss才会出现
 
 	Bitmap pauseIcon = null;
 	Bitmap playIcon = null;
+	Bitmap coinIcon = null;
 
 
 	FightingView(Context context,int screenWidth, int screenHeight) {
@@ -96,15 +99,18 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		//获取焦点
 		setFocusable(true);
 		new Thread(() -> {
-			try {
-				Thread.sleep(10000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			for (Award award : awards) {
-				if (!award.state) {
-					awards.get(0).state = true;
-					break;
+			while (true) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				for (Award award : awards) {
+					LogUtil.d(TestConstant.AWARD_TEST, award.state + "");
+					if (!award.state) {
+						awards.get(0).state = true;
+						break;
+					}
 				}
 			}
 		}).start();
@@ -168,9 +174,12 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		}
 
 		pauseIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.pause);
-		pauseIcon = Bitmap.createScaledBitmap(pauseIcon, 30, 30, false);
+		pauseIcon = Bitmap.createScaledBitmap(pauseIcon, 60, 60, false);
 		playIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.play);
-		playIcon = Bitmap.createScaledBitmap(playIcon, 30, 30, false);
+		playIcon = Bitmap.createScaledBitmap(playIcon, 60, 60, false);
+
+		coinIcon = BitmapFactory.decodeResource(context.getResources(), R.drawable.coin);
+		coinIcon = Bitmap.createScaledBitmap(coinIcon, 60, 60, false);
 	}
 
 	/**
@@ -220,7 +229,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.moveStyle = 0; //左右水平移动
 					boss.shotStyle = 1;//发射一枚子弹
 					boss.changeBossBulletPic(R.drawable.bossbullet1);
-					boss.health = 100;
+
+					// 金币数+2000
+					int coinNumber = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+					SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 2000 + coinNumber);
+
 					for(Plane enemy:enemys){
 						enemy.planeStyleIndex = 1;
 						if (random.nextInt(5) == 1) {
@@ -237,16 +250,27 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
 					boss.changeBossBulletPic(R.drawable.bossbullet2);
+					for (Bullet bullet : boss.bullets) {
+						bullet.damage = 30; // 子弹伤害翻倍
+					}
+
+					// 金币数+4000
+					int coinNumber1 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+					SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 4000 + coinNumber1);
+
 					//改变敌机的发射模式
-					for(Plane enemy:enemys){
+					for(Plane enemy : enemys){
 						int enemyMoveStyle = Math.abs(random.nextInt()%2);
 						enemy.moveStyle = enemyMoveStyle;
 						enemy.health = 40;
 						enemy.planeStyleIndex = 2;
+						for (Bullet bullet : enemy.bullets) {
+							bullet.damage = 20; // 子弹伤害翻倍
+						}
 						if (random.nextInt(5) == 1) {
 							enemy.planeStyleIndex = 3;
 							enemy.shotStyle = 1;
-							enemy.health = 80;
+							enemy.health = 150;
 							enemy.planeStyleIndex = 3;
 						}
 					}
@@ -259,14 +283,25 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
 					boss.changeBossBulletPic(R.drawable.bossbullet3);
+					for (Bullet bullet : boss.bullets) {
+						bullet.damage = 80; // 子弹伤害翻倍
+					}
+
+					// 金币数+10000
+					int coinNumber2 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+					SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 10000 + coinNumber2);
+
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
 						enemy.health = 80;
 						enemy.planeStyleIndex = 3;
+						for (Bullet bullet : enemy.bullets) {
+							bullet.damage = 50; // 子弹伤害翻倍
+						}
 						if (random.nextInt(5) == 1) {
 							enemy.shotStyle = 1;
-							enemy.health = 200;
+							enemy.health = 300;
 							enemy.planeStyleIndex = 4;
 						}
 					}
@@ -279,11 +314,22 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.width = boss.planePics[0].getWidth();
 					boss.health = boss.planePics[0].getHeight();
 					boss.changeBossBulletPic(R.drawable.bossbullet4);
+					for (Bullet bullet : boss.bullets) {
+						bullet.damage = 100; // 子弹伤害翻倍
+					}
+
+					// 金币数+20000
+					int coinNumber3 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+					SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 20000 + coinNumber3);
+
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
 						enemy.shotStyle = 1;
 						enemy.health = 200;
 						enemy.planeStyleIndex = 4;
+						for (Bullet bullet : enemy.bullets) {
+							bullet.damage = 80; // 子弹伤害翻倍
+						}
 						if (random.nextInt(5) == 1) {
 							enemy.shotStyle = 1;
 							enemy.health = 1000;
@@ -298,10 +344,21 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 					boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss5);
 					boss.width = boss.planePics[0].getWidth();
 					boss.height = boss.planePics[0].getHeight();
+					for (Bullet bullet : boss.bullets) {
+						bullet.damage = 150; // 子弹伤害翻倍
+					}
+
+					// 金币数+50000
+					int coinNumber4 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+					SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 50000 + coinNumber4);
+
 					//改变敌机的发射模式
 					for(Plane enemy:enemys){
+						for (Bullet bullet : enemy.bullets) {
+							bullet.damage = 100; // 子弹伤害翻倍
+						}
 						enemy.shotStyle = 1;
-						enemy.health = 1000;
+						enemy.health = 3000;
 						enemy.planeStyleIndex = 5;
 					}
 					boss.health = 100000;
@@ -348,13 +405,17 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 		paint.setTextSize(50);
 		paint.setColor(Color.WHITE);
 		canvas.drawText("分数:"+score, 20, 100, paint);
-		canvas.drawText("关卡"+round, screenWidth - 200, 100, paint);
+		canvas.drawText("关卡:"+round, screenWidth - 250, 100, paint);
 		if(pause){
-			canvas.drawBitmap(playIcon, screenWidth - 30, 0, paint);
+			canvas.drawBitmap(playIcon, screenWidth - 100, 20, paint);
 		}
 		else{
-			canvas.drawBitmap(pauseIcon, screenWidth - 30, 0, paint);
+			canvas.drawBitmap(pauseIcon, screenWidth - 100, 20, paint);
 		}
+		// 画金币
+		canvas.drawBitmap(coinIcon, screenWidth - 250, 100, paint);
+		int coinNumber = (int)SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+		canvas.drawText(coinNumber + "", screenWidth - 180, 150, paint);
 		//炸弹
 		if(bombFlag){
 			for(Plane enemy:enemys){

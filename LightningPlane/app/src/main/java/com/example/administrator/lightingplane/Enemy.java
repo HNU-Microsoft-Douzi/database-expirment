@@ -39,7 +39,12 @@ public class Enemy extends Plane {
 				if((nowX > enemy.nowX && nowX < (enemy.nowX + enemy.width) && nowY > enemy.nowY && nowY < (enemy.nowY + enemy.height))
 						|| ((nowX+width) > enemy.nowX && (nowX+width) < (enemy.nowX + enemy.width) && (nowY + height) > enemy.nowY && (nowY + height) < (enemy.nowY + enemy.height))){
 					health -= 10;
-					enemy.health -= 10;
+					if (enemy.shield > 0) {
+						enemy.shield -= 10;
+					} else {
+						enemy.shield = 0;
+						enemy.health -= 10;
+					}
 					if(enemy.health <= 0 && FinalPlaneActivity.soundFlag){
 						FinalPlaneActivity.bombMusic.start();
 					}

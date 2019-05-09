@@ -28,17 +28,19 @@ public class Plane {
     public Bitmap[] planePics;//飞机的样子
     private List<Bitmap> btPics = new ArrayList<>();
     public List<Bullet> bullets = new ArrayList<>();//飞机的子弹对象数组
-    public int bulletCount = 300; // 创建子弹的初始数目
+    public int bulletCount = 100; // 创建子弹的初始数目
     public Animation animation = null;//飞机死亡爆炸时的动画对象
     public int moveStyle;
 
     public int shotFlag;//飞机发射子弹的标志位
     public int shotInterval = 10;//飞机发射子弹的间隔时间shotInterval*50毫秒
-    public int shotStyle = 1;//飞机发射子弹的模式,一次发射子弹的个数
+    public int shotStyle = 4;//飞机发射子弹的模式,一次发射子弹的个数
 
     public int screenWidth;//屏幕的宽
     public int screenHeight;//屏幕的高
     public Context context;
+
+    public int maxHealth;
     List<Plane> enemys = new ArrayList<Plane>();
     public int planeStyleIndex = 0; // 飞机的图片索引
     Boss boss;
@@ -57,14 +59,15 @@ public class Plane {
         health = 100;
         lives = 5;
         state = 1;
+        maxHealth = 100;
         this.planePics = planePics;
         width = planePics[1].getWidth();
         height = planePics[1].getHeight();
         //this.bullets = bullets;
         this.context = context;
         // 初始化防御罩的图片
-        shieldPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.addShield);
-        shieldPic = Bitmap.createScaledBitmap(bombPic, planePics[0].getWidth(), planePics[0].getHeight(), false);
+        shieldPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.add_shield);
+        shieldPic = Bitmap.createScaledBitmap(shieldPic, planePics[0].getWidth(), planePics[0].getHeight(), false);
         // 初始化炸弹图片
         bombPic = BitmapFactory.decodeResource(context.getResources(), R.drawable.bomb);
         bombPic = Bitmap.createScaledBitmap(bombPic, 50, 50, false);
@@ -163,16 +166,25 @@ public class Plane {
                 matrix.postTranslate(nowX, nowY);
                 canvas.drawBitmap(shieldPic, matrix, paint);
             }
+            maxHealth = maxHealth < health ? health : maxHealth;
             //画血条
             paint.setStyle(Style.FILL);
             paint.setColor(Color.WHITE);
             Rect rect1 = new Rect(screenWidth / 3, screenHeight - 100, screenWidth * 2 / 3, screenHeight - 90);
             paint.setStrokeCap(Paint.Cap.ROUND);
             canvas.drawRect(rect1, paint);//画血槽
-            Rect rect = new Rect(screenWidth / 3, screenHeight - 100, screenWidth / 3 + (screenWidth / 3) * health / 100, screenHeight - 90);
+            Rect rect = new Rect(screenWidth / 3, screenHeight - 100, screenWidth / 3 + (screenWidth / 3) * health / maxHealth, screenHeight - 90);
             paint.setColor(Color.RED);
             paint.setStyle(Style.FILL);
             canvas.drawRect(rect, paint);//画血量
+
+            // 画当前血量
+            paint.setTextSize(32);
+            paint.setColor(Color.WHITE);
+            canvas.drawText("血量：" + health, screenWidth / 2 - 80, screenHeight - 150, paint);
+
+            // 画当前攻击值
+            canvas.drawText("攻击力：" + bullets.get(0).damage, screenWidth / 2 - 80, screenHeight - 200, paint);
             paint.setStrokeCap(Paint.Cap.SQUARE);
 //			canvas.drawBitmap(bombPic, 5, screenHeight-bombPic.getHeight()-5, paint);//画炸弹图标
 //			canvas.drawText(":"+bomb, bombPic.getWidth()+10, screenHeight-5, paint);//画炸弹数
@@ -243,12 +255,12 @@ public class Plane {
                         if (bullet.state == 2) {
                             // 画第一颗子弹
                             if (planeStyle == 0) {
-                                bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.reset(nowX - bullet.width + width / 2, nowY - height * 6 / 10, 1);
                                 bullet.changleBulletPic(btPics.get(1));
                             } else if (planeStyle == 1) {
-                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             } else if (planeStyle == 2) {
-                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             }
                             break;
                         }
@@ -258,12 +270,12 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             if (planeStyle == 0) {
-                                bullet.reset(nowX + bullet.width + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.reset(nowX + bullet.width + width / 2, nowY - height * 6 / 10, 1);
                                 bullet.changleBulletPic(btPics.get(1));
                             } else if (planeStyle == 1) {
-                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             } else if (planeStyle == 2) {
-                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 8 / 10, 1);
+                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             }
                             break;
                         }
@@ -272,14 +284,14 @@ public class Plane {
                 case 3://发射三枚子弹
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                            bullet.reset(nowX - bullet.width + width / 2, nowY - height * 6 / 10 + 28, 2);
                             bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX - bullet.width + width / 2, nowY - height * 8 / 10, 2);
+                            bullet.reset(nowX + width / 2, nowY - height * 6 / 10, 1);
                             bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
@@ -287,7 +299,7 @@ public class Plane {
                     // 右边的子弹要向右旋转60°
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + bullet.width + width / 2, nowY - height * 8 / 10, 3);
+                            bullet.reset(nowX + bullet.width + width / 2, nowY - height * 6 / 10 + 15, 3);
                             bullet.changleBulletPic(btPics.get(2));
                             break;
                         }
@@ -297,28 +309,28 @@ public class Plane {
                 case 4:
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10, 5);
+                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 6 / 10 + 38, 5);
                             bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 8 / 10, 2);
+                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 6 / 10, 2);
                             bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 8 / 10, 3);
+                            bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 6 / 10, 3);
                             bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10, 4);
+                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 6 / 10 + 22, 4);
                             bullet.changleBulletPic(btPics.get(3));
                             break;
                         }
@@ -328,7 +340,7 @@ public class Plane {
                 case 5:
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 8 / 10 + 38, 5);
+                            bullet.reset(nowX + width / 2 - 2 * bullet.width, nowY - height * 6 / 10 + 38, 5);
                             LogUtil.d(TAG, "第1个点的坐标:" + (nowX + width / 2 - 2 * bullet.width) + "," + (nowY - height * 8 / 10));
                             bullet.changleBulletPic(btPics.get(4));
                             break;
@@ -336,7 +348,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 8 / 10 + 12, 2);
+                            bullet.reset(nowX + width / 2 - bullet.width, nowY - height * 6 / 10 + 12, 2);
                             LogUtil.d(TAG, "第2个点的坐标:" + (nowX + width / 2 - bullet.width) + "," + (nowY - height * 8 / 10));
                             bullet.changleBulletPic(btPics.get(4));
                             break;
@@ -344,7 +356,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                            bullet.reset(nowX + width / 2, nowY - height * 6 / 10, 1);
                             LogUtil.d(TAG, "第3个点的坐标:" + (nowX + width / 2) + "," + (nowY - height * 8 / 10));
                             bullet.changleBulletPic(btPics.get(4));
                             break;
@@ -352,7 +364,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 8 / 10, 3);
+                            bullet.reset(nowX + width / 2 + bullet.width, nowY - height * 6 / 10, 3);
                             LogUtil.d(TAG, "第4个点的坐标:" + (nowX + width / 2 + bullet.width) + "," + (nowY - height * 8 / 10));
                             bullet.changleBulletPic(btPics.get(4));
                             break;
@@ -360,7 +372,7 @@ public class Plane {
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 8 / 10 + 20, 4);
+                            bullet.reset(nowX + width / 2 + 2 * bullet.width, nowY - height * 6 / 10 + 20, 4);
                             LogUtil.d(TAG, "第5个点的坐标:" + (nowX + width / 2 + 2 * bullet.width) + "," + (nowY - height * 8 / 10 + 200));
                             bullet.changleBulletPic(btPics.get(4));
                             break;
@@ -408,6 +420,7 @@ public class Plane {
         nowX = screenWidth / 2 - width / 2;
         nowY = screenHeight * 2 / 3;
         health = 100;
+        maxHealth = 100;
 //        shotInterval = 10;
 //        STEP = 50;
         state = 1;

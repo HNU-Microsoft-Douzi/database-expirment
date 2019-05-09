@@ -121,9 +121,10 @@ public class Bullet {
 		// 主机子弹对敌机的碰撞检测
 		for(Plane enemy:enemys){
 			if(enemy.state == 1 && state == 1){
-				int offset = 20;
-				if((nowX > enemy.nowX + offset && nowX < (enemy.nowX + enemy.width - offset) && nowY > enemy.nowY + offset && nowY < (enemy.nowY + enemy.height - offset))
-						|| ((nowX+width) > enemy.nowX + offset && (nowX+width) < (enemy.nowX + enemy.width - offset) && (nowY + height) > enemy.nowY + offset && (nowY + height) < (enemy.nowY + enemy.height - offset))){
+				int offsetX = 20;
+				int offsetY = 30;
+				if((nowX > enemy.nowX + offsetX && nowX < (enemy.nowX + enemy.width - offsetX) && nowY > enemy.nowY + offsetY && nowY < (enemy.nowY + enemy.height - offsetY))
+						|| ((nowX+width) > enemy.nowX + offsetX && (nowX+width) < (enemy.nowX + enemy.width - offsetX) && (nowY + height) > enemy.nowY + offsetY && (nowY + height) < (enemy.nowY + enemy.height - offsetY))){
 					state = 0;
 					if (FightingView.plane.shield > 0) {
 					    FightingView.plane.shield -= damage;
