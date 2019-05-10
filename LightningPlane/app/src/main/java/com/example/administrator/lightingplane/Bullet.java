@@ -2,13 +2,17 @@ package com.example.administrator.lightingplane;
 
 import java.util.List;
 
+import android.app.Application;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.util.Log;
 
+import com.example.administrator.lightingplane.application.BaseApplication;
+import com.example.administrator.lightingplane.constant.PlaneConstant;
 import com.example.administrator.lightingplane.util.LogUtil;
+import com.example.administrator.lightingplane.util.SharedPreferencesUtils;
 
 /**
  * 子弹实体类
@@ -121,8 +125,8 @@ public class Bullet {
 		// 主机子弹对敌机的碰撞检测
 		for(Plane enemy:enemys){
 			if(enemy.state == 1 && state == 1){
-				int offsetX = 20;
-				int offsetY = 30;
+				int offsetX = 10;
+				int offsetY = 20;
 				if((nowX > enemy.nowX + offsetX && nowX < (enemy.nowX + enemy.width - offsetX) && nowY > enemy.nowY + offsetY && nowY < (enemy.nowY + enemy.height - offsetY))
 						|| ((nowX+width) > enemy.nowX + offsetX && (nowX+width) < (enemy.nowX + enemy.width - offsetX) && (nowY + height) > enemy.nowY + offsetY && (nowY + height) < (enemy.nowY + enemy.height - offsetY))){
 					state = 0;
@@ -138,6 +142,23 @@ public class Bullet {
 
 					if(belongTo){
 						FightingView.enemyDestroyedNum++;
+						switch (FightingView.round) {
+							case 1:
+								FightingView.score += 10;
+								break;
+							case 2:
+								FightingView.score += 20;
+								break;
+							case 3:
+								FightingView.score += 30;
+								break;
+							case 4:
+								FightingView.score += 40;
+								break;
+							case 5:
+								FightingView.score += 50;
+								break;
+						}
 						FightingView.score += 10;
 						Log.i("wy", "命中敌机!敌机血量:"+enemy.health+",消灭敌机输:"+FightingView.enemyDestroyedNum);
 					}else{
@@ -154,6 +175,39 @@ public class Bullet {
 						|| ((nowX+width) > boss.nowX && (nowX+width) < (boss.nowX + boss.width) && (nowY + height) > boss.nowY && (nowY + height) < (boss.nowY + boss.height))){
 					boss.health -= damage;
 					if(boss.health <= 0 && FinalPlaneActivity.soundFlag){
+						switch (FightingView.round) {
+							case 1:
+								// 金币数+2000
+								int coinNumber = (int) SharedPreferencesUtils.getParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 0);
+								SharedPreferencesUtils.setParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 2000 + coinNumber);
+								FightingView.score += 500;
+								break;
+							case 2:
+								// 金币数+4000
+								int coinNumber1 = (int) SharedPreferencesUtils.getParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 0);
+								SharedPreferencesUtils.setParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 4000 + coinNumber1);
+								FightingView.score += 1000;
+								break;
+							case 3:
+								FightingView.score += 2000;
+								// 金币数+10000
+								int coinNumber2 = (int) SharedPreferencesUtils.getParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 0);
+								SharedPreferencesUtils.setParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 10000 + coinNumber2);
+								break;
+							case 4:
+								// 金币数+20000
+								int coinNumber3 = (int) SharedPreferencesUtils.getParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 0);
+								SharedPreferencesUtils.setParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 20000 + coinNumber3);
+								FightingView.score += 5000;
+								break;
+							case 5:
+								// 金币数+50000
+								int coinNumber4 = (int) SharedPreferencesUtils.getParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 0);
+								SharedPreferencesUtils.setParam(BaseApplication.getContext(), PlaneConstant.COIN_NUMBER, 50000 + coinNumber4);
+
+								FightingView.score += 10000;
+								break;
+						}
 						FinalPlaneActivity.bombMusic.start();
 					}
 					state = 0;
@@ -176,7 +230,7 @@ public class Bullet {
 			nowY = planeY + height;
 		}
 		else{
-			nowX = planeX - width/2;
+			nowX = planeX + width/2;
 			nowY = planeY + 40;
 		}
 		this.rotation = 0;

@@ -71,7 +71,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
 
     public static int score = 0;//总分
     public static int enemyDestroyedNum; // 消灭敌机的数量
-    public int round = 1;//关卡
+    public static int round = 1;//关卡
 
     Random random = new Random();
     public int bossFlag = 30;//消灭bossFlag个敌机后boss才会出现
@@ -126,11 +126,11 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
         temp[2] = BitmapFactory.decodeResource(context.getResources(), R.drawable.myplaneleft1);
         temp[3] = BitmapFactory.decodeResource(context.getResources(), R.drawable.myplaneright0);
         temp[4] = BitmapFactory.decodeResource(context.getResources(), R.drawable.myplaneright1);
-        temp[0] = Bitmap.createScaledBitmap(temp[0], temp[0].getWidth() / 2, temp[0].getHeight() / 2, true);
-        temp[1] = Bitmap.createScaledBitmap(temp[1], temp[1].getWidth() / 2, temp[1].getHeight() / 2, true);
-        temp[2] = Bitmap.createScaledBitmap(temp[2], temp[2].getWidth() / 2, temp[2].getHeight() / 2, true);
-        temp[3] = Bitmap.createScaledBitmap(temp[3], temp[3].getWidth() / 2, temp[3].getHeight() / 2, true);
-        temp[4] = Bitmap.createScaledBitmap(temp[4], temp[4].getWidth() / 2, temp[4].getHeight() / 2, true);
+        temp[0] = Bitmap.createScaledBitmap(temp[0], temp[0].getWidth(), temp[0].getHeight(), true);
+        temp[1] = Bitmap.createScaledBitmap(temp[1], temp[1].getWidth(), temp[1].getHeight(), true);
+        temp[2] = Bitmap.createScaledBitmap(temp[2], temp[2].getWidth(), temp[2].getHeight(), true);
+        temp[3] = Bitmap.createScaledBitmap(temp[3], temp[3].getWidth(), temp[3].getHeight(), true);
+        temp[4] = Bitmap.createScaledBitmap(temp[4], temp[4].getWidth(), temp[4].getHeight(), true);
 
         //初始化boss
         Bitmap[] temp1 = new Bitmap[5];
@@ -226,7 +226,6 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
             // round代表不同的管卡，这里指的是不同管卡的boss的设定
             switch (round) {
                 case 1:
-                    boss.moveStyle = 1;
                     boss.shotStyle = 2;
                     boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
                     boss.width = boss.planePics[0].getWidth();
@@ -235,14 +234,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                     boss.shotStyle = 1;//发射一枚子弹
                     boss.changeBossBulletPic(R.drawable.boss_bullet0);
 
-                    // 金币数+2000
-                    int coinNumber = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
-                    SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 2000 + coinNumber);
-
                     for (Plane enemy : enemys) {
                         for (Bullet bullet : enemy.bullets) {
                             bullet.changleBulletPic(plane.enemyPics.get(0));
-                    }
+                        }
                         enemy.planeStyleIndex = 1;
                         if (random.nextInt(5) == 1) {
                             enemy.planeStyleIndex = 2;
@@ -263,14 +258,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                         bullet.damage = 30; // 子弹伤害翻倍
                     }
 
-                    // 金币数+4000
-                    int coinNumber1 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
-                    SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 4000 + coinNumber1);
-
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
-                        int enemyMoveStyle = Math.abs(random.nextInt() % 2);
-                        enemy.moveStyle = enemyMoveStyle;
+                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
                         enemy.health = 40;
                         enemy.planeStyleIndex = 2;
                         for (Bullet bullet : enemy.bullets) {
@@ -281,7 +271,6 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                             enemy.planeStyleIndex = 3;
                             enemy.shotStyle = 1;
                             enemy.health = 150;
-                            enemy.planeStyleIndex = 3;
                         }
                     }
                     boss.health = 5000;
@@ -297,12 +286,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                         bullet.damage = 80; // 子弹伤害翻倍
                     }
 
-                    // 金币数+10000
-                    int coinNumber2 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
-                    SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 10000 + coinNumber2);
-
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
+                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
                         enemy.shotStyle = 1;
                         enemy.health = 80;
                         enemy.planeStyleIndex = 3;
@@ -330,12 +316,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                         bullet.changleBulletPic(plane.enemyPics.get(3));
                     }
 
-                    // 金币数+20000
-                    int coinNumber3 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
-                    SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 20000 + coinNumber3);
-
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
+                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
                         enemy.shotStyle = 1;
                         enemy.health = 200;
                         enemy.planeStyleIndex = 4;
@@ -361,13 +344,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                         bullet.damage = 150; // 子弹伤害翻倍
                         bullet.changleBulletPic(plane.enemyPics.get(4));
                     }
-
-                    // 金币数+50000
-                    int coinNumber4 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
-                    SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 50000 + coinNumber4);
-
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
+                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
                         for (Bullet bullet : enemy.bullets) {
                             bullet.damage = 100; // 子弹伤害翻倍
                         }
@@ -412,7 +391,7 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
         }
 
         drawEnemy(canvas); // 画敌机
-        plane.move(canvas, paint, moveToX - plane.width / 2, moveToY - plane.height / 2);//画战机
+        plane.move(canvas, paint, moveToX - plane.width / 2, moveToY - plane.height / 2); // 画战机
         // 绘制奖励
         for (Award award : awards) {
             award.move(canvas, paint);
@@ -453,7 +432,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
     private void drawEnemy(Canvas canvas) {
         if (canvas != null) {
             for (Plane enemy : enemys) {
-                enemy.move(canvas, paint, moveToX, moveToY);
+                if (enemy.state == 1) {
+                    enemy.move(canvas, paint, moveToX, moveToY);
+                }
+                LogUtil.d(TestConstant.ENEMY_TEST, "正在画" + moveToX + "," + moveToY + "的敌机，敌机的状态为:" + enemy.state);
             }
 
             if (enemyFlag == 0) {

@@ -10,4 +10,6 @@ public class TestConstant {
     public static final String BULLET_TEST = "bulletTest";
 
     public static final String AWARD_TEST = "awardTest";
+
+    public static final String ENEMY_TEST = "enemyTest";
 }

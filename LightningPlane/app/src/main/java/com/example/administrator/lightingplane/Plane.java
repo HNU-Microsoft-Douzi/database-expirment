@@ -29,13 +29,13 @@ public class Plane {
     private List<Bitmap> btPics = new ArrayList<>();
     public List<Bitmap> enemyPics = new ArrayList<>();
     public List<Bullet> bullets = new ArrayList<>();//飞机的子弹对象数组
-    public int bulletCount = 100; // 创建子弹的初始数目
+    public int bulletCount = 200; // 创建子弹的初始数目
     public Animation animation = null;//飞机死亡爆炸时的动画对象
     public int moveStyle;
 
     public int shotFlag;//飞机发射子弹的标志位
     public int shotInterval = 10;//飞机发射子弹的间隔时间shotInterval*50毫秒
-    public int shotStyle = 4;//飞机发射子弹的模式,一次发射子弹的个数
+    public int shotStyle = 1;//飞机发射子弹的模式,一次发射子弹的个数
 
     public int screenWidth;//屏幕的宽
     public int screenHeight;//屏幕的高
@@ -205,18 +205,18 @@ public class Plane {
             } else if (moveToX > nowX && moveToX < screenWidth && moveToX > 0) {
                 // 目标点在当前点的右边
                 if ((moveToX - nowX) / 2 > STEP) {
-                    i = 2;
-                } else {
                     i = 3;
+                } else {
+                    i = 4;
                 }
                 nowX += STEP;
             } else if (moveToX < nowX && moveToX < screenWidth && moveToX > 0) {
                 // 目标点在当前点的左边
                 nowX -= STEP;
                 if ((nowX - moveToX) / 2 > STEP) {
-                    i = 4;
+                    i = 1;
                 } else {
-                    i = 5;
+                    i = 2;
                 }
             }
 

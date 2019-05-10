@@ -55,9 +55,9 @@ public class Award {
         impact();//碰撞检测
         if (state) {
             //移动
-            if (nowX <= 0 || nowX >= screenWidth - width) {
-                STEPX = -STEPX;
-            }
+            if (nowX < 0) STEPX = Math.abs(STEPX);
+            if (nowX > screenWidth - width) STEPX = - Math.abs(STEPX);
+
             nowY -= STEPY;
             nowX += STEPX;
             canvas.drawBitmap(awardPics.get(style), nowX, nowY, paint);
@@ -123,7 +123,8 @@ public class Award {
                         break;
                     case 7:
                         // 增加攻速
-                        FightingView.plane.shotInterval -= 2;
+                        if (FightingView.plane.shotInterval > 5)
+                            FightingView.plane.shotInterval -= 2;
                         break;
                     case 8:
                         // 增加5000金币

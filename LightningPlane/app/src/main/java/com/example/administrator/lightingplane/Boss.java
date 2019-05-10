@@ -69,15 +69,13 @@ public class Boss extends Plane {
 
 			switch(moveStyle){
 				case 0://boss移动轨迹
-					if(nowX <= 0 || nowX >= screenWidth - width){
-						STEP = -STEP;
-					}
+					if (nowX < 0 - width / 2) STEP = Math.abs(STEP);
+					if (nowX > screenWidth - width / 2) STEP = - Math.abs(STEP);
 					nowX += STEP;
 					break;
 				case 1://boos移动轨迹
-					if(nowX <= 0 || nowX >= screenWidth - width){
-						STEP = -STEP;
-					}
+					if (nowX < 0 - width / 2) STEP = Math.abs(STEP);
+					if (nowX > screenWidth - width / 2) STEP = - Math.abs(STEP);
 					nowX += STEP;
 
 					if(nowY <= 0 || nowY >= 300){
@@ -94,8 +92,9 @@ public class Boss extends Plane {
 		bulletsMove(canvas,paint, 2);
 	}
 
-
-
+	/**
+	 * Boss对本机的碰撞检测     【FIXME 第三关的Boss的碰撞检测出现了问题】
+	 */
 	public void impact() {
 		for(Plane enemy:enemys){
 			if(enemy.state == 1){

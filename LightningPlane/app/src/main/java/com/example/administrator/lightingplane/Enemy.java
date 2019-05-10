@@ -71,9 +71,8 @@ public class Enemy extends Plane {
 					nowY -= STEP;
 					break;
 				case 1://左右游走型
-					if(nowX <= 0 || nowX >= screenWidth - width){
-						STEPY = -STEPY;
-					}
+					if (nowX < 0) STEPY = Math.abs(STEPY);
+					if (nowX > screenWidth - width) STEPY = - Math.abs(STEPY);
 					nowY -= STEP;
 					nowX += STEPY;
 					break;
@@ -119,35 +118,8 @@ public class Enemy extends Plane {
 	@Override
 	public void reset(){
 		Random random = new Random();
-//		nowY = -screenHeight;
-//		nowX = Math.abs(random.nextInt()%(screenWidth+1-width));
-
-		int topx = random.nextInt(screenWidth);
-		int topy = random.nextInt(100);
-
-		int leftx = random.nextInt(100);
-		int lefty = random.nextInt(300);
-
-		int rightx = screenWidth - leftx;
-		int righty = lefty;
-
-		int choose = random.nextInt(3) + 1;
-			switch (choose) {
-				case 1:
-					nowX = topx;
-					nowY = topy;
-					break;
-				case 2:
-					nowX = leftx;
-					nowY = lefty;
-					break;
-				case 3:
-					nowX = rightx;
-					nowY = righty;
-					break;
-				default:
-					break;
-			}
+		nowY = -screenHeight;
+		nowX = Math.abs(random.nextInt()%(screenWidth+1-width));
 		state = 1;
 		health = 10;
 	}
