@@ -27,6 +27,7 @@ public class Plane {
     public int STEP;//飞机的移动速度
     public Bitmap[] planePics;//飞机的样子
     private List<Bitmap> btPics = new ArrayList<>();
+    public List<Bitmap> enemyPics = new ArrayList<>();
     public List<Bullet> bullets = new ArrayList<>();//飞机的子弹对象数组
     public int bulletCount = 100; // 创建子弹的初始数目
     public Animation animation = null;//飞机死亡爆炸时的动画对象
@@ -80,10 +81,12 @@ public class Plane {
         btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet3));
         btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet4));
         btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet1));
-        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
-        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
-        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
-        btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.myzd1));
+
+        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet0));
+        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_1));
+        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_2));
+        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_3));
+
         //初始化子弹爆炸图片
         List<Bitmap> btDestroyPics = new ArrayList<Bitmap>();
         btDestroyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.blastz1));
@@ -200,11 +203,21 @@ public class Plane {
                 nowX = moveToX;
                 i = 0;
             } else if (moveToX > nowX && moveToX < screenWidth && moveToX > 0) {
+                // 目标点在当前点的右边
+                if ((moveToX - nowX) / 2 > STEP) {
+                    i = 2;
+                } else {
+                    i = 3;
+                }
                 nowX += STEP;
-                i = 2;
             } else if (moveToX < nowX && moveToX < screenWidth && moveToX > 0) {
+                // 目标点在当前点的左边
                 nowX -= STEP;
-                i = 1;
+                if ((nowX - moveToX) / 2 > STEP) {
+                    i = 4;
+                } else {
+                    i = 5;
+                }
             }
 
             if (Math.abs(moveToY - nowY) < STEP) {
@@ -239,12 +252,10 @@ public class Plane {
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
                             if (planeStyle == 0) {
-                                bullet.reset(nowX + width / 2, nowY - height * 8 / 10, 1);
+                                bullet.reset(nowX + width / 2, nowY - height * 6 / 10, 1);
                                 bullet.changleBulletPic(btPics.get(0));
-                            } else if (planeStyle == 1) {
-                                bullet.reset(nowX + width / 2, nowY + height * 8 / 10, 1);
-                            } else if (planeStyle == 2) {
-                                bullet.reset(nowX + width / 2, nowY + height * 8 / 10, 1);
+                            } else if (planeStyle == 1 || planeStyle == 2) {
+                                bullet.reset(nowX + width / 2, nowY + height * 6 / 10, 1);
                             }
                             break;
                         }
@@ -257,9 +268,7 @@ public class Plane {
                             if (planeStyle == 0) {
                                 bullet.reset(nowX - bullet.width + width / 2, nowY - height * 6 / 10, 1);
                                 bullet.changleBulletPic(btPics.get(1));
-                            } else if (planeStyle == 1) {
-                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 6 / 10, 1);
-                            } else if (planeStyle == 2) {
+                            } else if (planeStyle == 1 || planeStyle == 2) {
                                 bullet.reset(nowX - bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             }
                             break;
@@ -272,9 +281,7 @@ public class Plane {
                             if (planeStyle == 0) {
                                 bullet.reset(nowX + bullet.width + width / 2, nowY - height * 6 / 10, 1);
                                 bullet.changleBulletPic(btPics.get(1));
-                            } else if (planeStyle == 1) {
-                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 6 / 10, 1);
-                            } else if (planeStyle == 2) {
+                            } else if (planeStyle == 1 || planeStyle == 2) {
                                 bullet.reset(nowX + bullet.width + width / 2, nowY + height * 6 / 10, 1);
                             }
                             break;
@@ -284,23 +291,35 @@ public class Plane {
                 case 3://发射三枚子弹
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX - bullet.width + width / 2, nowY - height * 6 / 10 + 28, 2);
-                            bullet.changleBulletPic(btPics.get(2));
+                            if (planeStyle == 0) {
+                                bullet.reset(nowX - bullet.width + width / 2, nowY - height * 6 / 10 + 28, 2);
+                                bullet.changleBulletPic(btPics.get(2));
+                            } else if (planeStyle == 1 || planeStyle == 2) {
+                                bullet.reset(nowX - bullet.width + width / 2, nowY + height * 6 / 10 - 28, 2);
+                            }
                             break;
                         }
                     }
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + width / 2, nowY - height * 6 / 10, 1);
-                            bullet.changleBulletPic(btPics.get(2));
+                            if (planeStyle == 0) {
+                                bullet.reset(nowX + width / 2, nowY - height * 6 / 10, 1);
+                                bullet.changleBulletPic(btPics.get(2));
+                            } else if (planeStyle == 1 || planeStyle == 2) {
+                                bullet.reset(nowX + width / 2, nowY + height * 6 / 10, 1);
+                            }
                             break;
                         }
                     }
                     // 右边的子弹要向右旋转60°
                     for (Bullet bullet : bullets) {
                         if (bullet.state == 2) {
-                            bullet.reset(nowX + bullet.width + width / 2, nowY - height * 6 / 10 + 15, 3);
-                            bullet.changleBulletPic(btPics.get(2));
+                            if (planeStyle == 0) {
+                                bullet.reset(nowX + bullet.width + width / 2, nowY - height * 6 / 10 + 15, 3);
+                                bullet.changleBulletPic(btPics.get(2));
+                            } else if (planeStyle == 1 || planeStyle == 2) {
+                                bullet.reset(nowX + bullet.width + width / 2, nowY + height * 6 / 10 - 15, 3);
+                            }
                             break;
                         }
                     }

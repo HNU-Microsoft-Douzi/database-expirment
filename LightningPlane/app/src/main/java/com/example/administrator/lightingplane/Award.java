@@ -42,11 +42,11 @@ public class Award {
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addhealth)); // 增加生命值
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addlife)); // 增加一条生命
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addpower)); // 增加子弹强度和子弹数目
-//        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addspeed)); // 增加速度
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addcoin)); // 增加金币数目
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.add_defense));// 增加防护罩
         awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addmaxlife)); // 让当前生命上限翻倍
-
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addattackspeed)); // 增加攻速
+        awardPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.addcoin1)); // 增加5000金币
         width = awardPics.get(0).getWidth();
         height = awardPics.get(0).getHeight();
     }
@@ -115,7 +115,6 @@ public class Award {
                         EventBus.getDefault().post(new OnCoinIncreaseEvent());
                         break;
                     case 5:
-                        // TODO 增加一个能够吸收100伤害的防御罩
                         FightingView.plane.shield = 100; // 增加一个能够抵挡100伤害的盾
                         break;
                     case 6:
@@ -123,9 +122,14 @@ public class Award {
                         FightingView.plane.health *= 2;
                         break;
                     case 7:
-                        // 大幅增加飞机伤害，并对用户进行提示
+                        // 增加攻速
+                        FightingView.plane.shotInterval -= 2;
                         break;
                     case 8:
+                        // 增加5000金币
+                        int coinNumber1 = (int) SharedPreferencesUtils.getParam(context, PlaneConstant.COIN_NUMBER, 0);
+                        SharedPreferencesUtils.setParam(context, PlaneConstant.COIN_NUMBER, 5000 + coinNumber1);
+                        EventBus.getDefault().post(new OnCoinIncreaseEvent());
                         break;
                     case 9:
                         // 获得一辆新战机

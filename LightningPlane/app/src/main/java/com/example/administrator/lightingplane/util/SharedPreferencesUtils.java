@@ -22,7 +22,7 @@ public class SharedPreferencesUtils {
      * @param key
      * @param object
      */
-    public static void setParam(Context context, String key, Object object) {
+    public synchronized static void setParam(Context context, String key, Object object) {
 
         String type = object.getClass().getSimpleName();
         SharedPreferences sp = context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE);

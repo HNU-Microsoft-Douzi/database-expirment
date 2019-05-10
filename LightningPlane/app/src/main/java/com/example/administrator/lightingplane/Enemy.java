@@ -119,8 +119,35 @@ public class Enemy extends Plane {
 	@Override
 	public void reset(){
 		Random random = new Random();
-		nowY = -screenHeight;
-		nowX = Math.abs(random.nextInt()%(screenWidth+1-width));
+//		nowY = -screenHeight;
+//		nowX = Math.abs(random.nextInt()%(screenWidth+1-width));
+
+		int topx = random.nextInt(screenWidth);
+		int topy = random.nextInt(100);
+
+		int leftx = random.nextInt(100);
+		int lefty = random.nextInt(300);
+
+		int rightx = screenWidth - leftx;
+		int righty = lefty;
+
+		int choose = random.nextInt(3) + 1;
+			switch (choose) {
+				case 1:
+					nowX = topx;
+					nowY = topy;
+					break;
+				case 2:
+					nowX = leftx;
+					nowY = lefty;
+					break;
+				case 3:
+					nowX = rightx;
+					nowY = righty;
+					break;
+				default:
+					break;
+			}
 		state = 1;
 		health = 10;
 	}
