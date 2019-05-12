@@ -1,6 +1,7 @@
 package com.example.administrator.lightingplane;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -15,8 +16,11 @@ import android.view.SurfaceView;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 
+import com.example.administrator.lightingplane.factory.BossFactory;
+import com.example.administrator.lightingplane.factory.EnemyFactory;
 import com.example.administrator.lightingplane.constant.PlaneConstant;
 import com.example.administrator.lightingplane.constant.TestConstant;
+import com.example.administrator.lightingplane.event.OnAwardCreateEvent;
 import com.example.administrator.lightingplane.event.OnBossDiedEvent;
 import com.example.administrator.lightingplane.event.OnCoinIncreaseEvent;
 import com.example.administrator.lightingplane.util.LogUtil;
@@ -80,6 +84,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
     Bitmap playIcon = null;
     Bitmap coinIcon = null;
 
+    private BossFactory bossFactory;
+
+    private EnemyFactory enemyFactory;
+
 
     FightingView(Context context, int screenWidth, int screenHeight) {
         super(context);
@@ -93,6 +101,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
         bg1 = 0;
         //设置背景图片2的位置
         bg2 = -screenHeight;
+
+        bossFactory = new BossFactory(context);
+        enemyFactory = new EnemyFactory(context);
         holder.addCallback(this);
         //初始化战斗界面
         init();
@@ -105,17 +116,25 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                for (Award award : awards) {
-                    LogUtil.d(TestConstant.AWARD_TEST, award.state + "");
-                    if (!award.state) {
-                        awards.get(0).state = true;
-                        break;
-                    }
-                }
+                createOneAward();
             }
         }).start();
     }
 
+    /**
+     * 创造一个奖励
+     */
+    private void createOneAward() {
+        if (awards == null) {
+            awards = new LinkedList<>();
+        }
+        for (Award award : awards) {
+            if (!award.state) {
+                awards.get(0).state = true;
+                break;
+            }
+        }
+    }
 
     private void init() {
         getBackGround(context);
@@ -168,6 +187,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
         boss.setTarget();
         boss.shotStyle = 5;
         boss.moveStyle = 1;
+        awards.add(new Award(context, screenWidth, screenHeight));
+        awards.add(new Award(context, screenWidth, screenHeight));
+        awards.add(new Award(context, screenWidth, screenHeight));
+        awards.add(new Award(context, screenWidth, screenHeight));
         awards.add(new Award(context, screenWidth, screenHeight));
         awards.add(new Award(context, screenWidth, screenHeight));
         awards.add(new Award(context, screenWidth, screenHeight));
@@ -226,124 +249,40 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
             // round代表不同的管卡，这里指的是不同管卡的boss的设定
             switch (round) {
                 case 1:
-                    boss.shotStyle = 2;
-                    boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss1);
-                    boss.width = boss.planePics[0].getWidth();
-                    boss.height = boss.planePics[0].getHeight();
-                    boss.moveStyle = 0; //左右水平移动
-                    boss.shotStyle = 1;//发射一枚子弹
-                    boss.changeBossBulletPic(R.drawable.boss_bullet0);
-
-                    for (Plane enemy : enemys) {
-                        for (Bullet bullet : enemy.bullets) {
-                            bullet.changleBulletPic(plane.enemyPics.get(0));
-                        }
-                        enemy.planeStyleIndex = 1;
-                        if (random.nextInt(5) == 1) {
-                            enemy.planeStyleIndex = 2;
-                            enemy.moveStyle = Math.abs(random.nextInt() % 2);
-                            enemy.health = 40;
-                        }
-                    }
-                    boss.health = 1000;
+                    bossFactory.createFirstBoss(boss);
+                    enemyFactory.createFirstEnemies(enemys);
                     break;
+
                 case 2:
-                    boss.moveStyle = 1;
-                    boss.shotStyle = 2;
-                    boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss2);
-                    boss.width = boss.planePics[0].getWidth();
-                    boss.height = boss.planePics[0].getHeight();
-                    boss.changeBossBulletPic(R.drawable.boss_bullet1);
-                    for (Bullet bullet : boss.bullets) {
-                        bullet.damage = 30; // 子弹伤害翻倍
-                    }
-
-                    //改变敌机的发射模式
-                    for (Plane enemy : enemys) {
-                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
-                        enemy.health = 40;
-                        enemy.planeStyleIndex = 2;
-                        for (Bullet bullet : enemy.bullets) {
-                            bullet.damage = 20; // 子弹伤害翻倍
-                            bullet.changleBulletPic(plane.enemyPics.get(1));
-                        }
-                        if (random.nextInt(5) == 1) {
-                            enemy.planeStyleIndex = 3;
-                            enemy.shotStyle = 1;
-                            enemy.health = 150;
-                        }
-                    }
-                    boss.health = 5000;
+                    bossFactory.createSecondBoss(boss);
+                    enemyFactory.createSecondEnemies(enemys);
                     break;
+
                 case 3:
-                    boss.moveStyle = 1;
-                    boss.shotStyle = 3;
-                    boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss3);
-                    boss.width = boss.planePics[0].getWidth();
-                    boss.height = boss.planePics[0].getHeight();
-                    boss.changeBossBulletPic(R.drawable.boss_bullet2);
-                    for (Bullet bullet : boss.bullets) {
-                        bullet.damage = 80; // 子弹伤害翻倍
-                    }
-
-                    //改变敌机的发射模式
-                    for (Plane enemy : enemys) {
-                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
-                        enemy.shotStyle = 1;
-                        enemy.health = 80;
-                        enemy.planeStyleIndex = 3;
-                        for (Bullet bullet : enemy.bullets) {
-                            bullet.damage = 50; // 子弹伤害翻倍
-                            bullet.changleBulletPic(plane.enemyPics.get(2));
-                        }
-                        if (random.nextInt(5) == 1) {
-                            enemy.shotStyle = 1;
-                            enemy.health = 300;
-                            enemy.planeStyleIndex = 4;
-                        }
-                    }
-                    boss.health = 20000;
+                    bossFactory.createThirdBoss(boss);
+                    enemyFactory.createThirdEnemies(enemys);
                     break;
-                case 4:
-                    boss.moveStyle = 1;
-                    boss.shotStyle = 4;
-                    boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss4);
-                    boss.width = boss.planePics[0].getWidth();
-                    boss.health = boss.planePics[0].getHeight();
-                    boss.changeBossBulletPic(R.drawable.boss_bullet3);
-                    for (Bullet bullet : boss.bullets) {
-                        bullet.damage = 100; // 子弹伤害翻倍
-                        bullet.changleBulletPic(plane.enemyPics.get(3));
-                    }
 
+                case 4:
+                    bossFactory.createForthBoss(boss);
+                    enemyFactory.createForthEnemies(enemys);
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
-                        enemy.moveStyle = Math.abs(random.nextInt() % 2);
-                        enemy.shotStyle = 1;
-                        enemy.health = 200;
-                        enemy.planeStyleIndex = 4;
+
                         for (Bullet bullet : enemy.bullets) {
                             bullet.damage = 80; // 子弹伤害翻倍
                         }
                         if (random.nextInt(5) == 1) {
                             enemy.shotStyle = 1;
                             enemy.health = 1000;
-                            enemy.planeStyleIndex = 5;
+                            enemy.planeStyleIndex = 4;
                         }
                     }
-                    boss.health = 50000;
+
                     break;
                 case 5:
-                    boss.moveStyle = 1;
-                    boss.shotStyle = 5;
-                    boss.planePics[0] = BitmapFactory.decodeResource(context.getResources(), R.drawable.boss5);
-                    boss.width = boss.planePics[0].getWidth();
-                    boss.height = boss.planePics[0].getHeight();
-                    boss.changeBossBulletPic(R.drawable.boss_bullet4);
-                    for (Bullet bullet : boss.bullets) {
-                        bullet.damage = 150; // 子弹伤害翻倍
-                        bullet.changleBulletPic(plane.enemyPics.get(4));
-                    }
+                    bossFactory.createFifthBoss(boss);
+                    enemyFactory.createFifthEnemies(enemys);
                     //改变敌机的发射模式
                     for (Plane enemy : enemys) {
                         enemy.moveStyle = Math.abs(random.nextInt() % 2);
@@ -352,9 +291,9 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
                         }
                         enemy.shotStyle = 1;
                         enemy.health = 3000;
-                        enemy.planeStyleIndex = 5;
+                        enemy.planeStyleIndex = 4;
                     }
-                    boss.health = 100000;
+
                     break;
                 default:
                     round++;
@@ -523,6 +462,10 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
     public void surfaceDestroyed(SurfaceHolder holder) {
         // TODO Auto-generated method stub
         flag = false;
+        awards.clear();
+        awards = null;
+        enemys.clear();
+        enemys = null;
         EventBus.getDefault().unregister(this);
     }
 
@@ -542,5 +485,12 @@ public class FightingView extends SurfaceView implements Callback, Runnable {
         LogUtil.d(TestConstant.AWARD_TEST, "FightingView已經執行了");
         // TODO要对用户进行提示告知用户当前金币数目增加
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventAction(OnAwardCreateEvent event) {
+        LogUtil.d(TestConstant.AWARD_TEST, "");
+        createOneAward();
+    }
+
 
 }

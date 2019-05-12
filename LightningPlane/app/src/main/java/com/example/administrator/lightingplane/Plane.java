@@ -2,6 +2,7 @@ package com.example.administrator.lightingplane;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -50,6 +51,7 @@ public class Plane {
     Bitmap myLives;
     Bitmap shieldPic;
     public int shield;
+    protected Random random = new Random();
 
     public Plane(Context context, int screenWidth, int screenHeight, Bitmap[] planePics) {
         this.screenWidth = screenWidth;
@@ -57,10 +59,10 @@ public class Plane {
         nowX = screenWidth / 2;
         nowY = screenHeight * 2 / 3;
         STEP = 50;
-        health = 100;
+        health = 1000000;
+        maxHealth = health;
         lives = 5;
         state = 1;
-        maxHealth = 100;
         this.planePics = planePics;
         width = planePics[1].getWidth();
         height = planePics[1].getHeight();
@@ -82,7 +84,7 @@ public class Plane {
         btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet4));
         btPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.bullet1));
 
-        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet0));
+        enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_0));
         enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_1));
         enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_2));
         enemyPics.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.enemy_bullet_3));
@@ -139,6 +141,18 @@ public class Plane {
         for (Bullet bullet : bullets) {
             bullet.enemys = enemys;
             bullet.boss = boss;
+        }
+    }
+
+    public void changeBulletDamage(int damage) {
+        for (Bullet bullet : bullets) {
+            bullet.damage = damage;
+        }
+    }
+
+    public void changeBulletPic(int id) {
+        for (Bullet bullet : bullets) {
+            bullet.bulletPic = BitmapFactory.decodeResource(context.getResources(), id);
         }
     }
 
@@ -446,5 +460,12 @@ public class Plane {
         lives--;
         bomb = 3;
 //        shotStyle = 5;
+    }
+
+    /**
+     * 这里应该要对资源进行清理
+     */
+    public void onDestroy() {
+
     }
 }
